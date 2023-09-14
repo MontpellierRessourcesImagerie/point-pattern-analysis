@@ -1,6 +1,7 @@
 import sys
 import unittest
 from ij.gui import NewImage
+from inra.ijpb.label.edit import FindAllLabels
 from fr.cnrs.mri.cialib.generator import SpotGenerator
 
 
@@ -62,6 +63,50 @@ class SpotGeneratorTest(unittest.TestCase):
         self.assertTrue(count > 0)
                         
 
+    def testCreateGroundTruthImage(self):
+        self.generator.sampleUniformRandomPoints()
+        self.generator.createGroundTruthImage()
+        labels = FindAllLabels().process(self.generator.groundTruthImage)
+        
+        # The ground-truth image should contain one label for each point
+        self.assertEquals(len(self.generator.points), len(labels))
+
+        # The label of the first point must be one
+        self.assertEquals(1, min(labels))
+
+        # The label of the last point corresponds to the number of points
+        self.assertEquals(len(self.generator.points), max(labels))
+        
+    
+    def testGetGroundTruthTableNoScale(self):
+        self.generator.sampleUniformRandomPoints()
+        table = self.generator.getGroundTruthTable()
+        
+        # There should be one row per sample
+        self.assertEquals(len(self.generator.points), table.size())
+        
+        # Coordinates in the table should correspond to the sampled coordinates
+        for row, point in enumerate(self.generator.points):
+            self.assertEquals(point, (int(table.getValue("X", row)), 
+                                      int(table.getValue("Y", row)),
+                                      int(table.getValue("Z", row))))
+                                      
+                                      
+    def testGetGroundTruthTableWithScale(self):
+        self.generator.setScale(0.2, 0.2, 0.6, "µm")
+        self.generator.sampleUniformRandomPoints()
+        table = self.generator.getGroundTruthTable()
+        
+        # There should be one row per sample
+        self.assertEquals(len(self.generator.points), table.size())
+        
+        # Coordinates in the table should correspond to the sampled coordinates in physical units
+        for row, point in enumerate(self.generator.getScaledPoints()):
+            self.assertEquals(point, (table.getValue("X", row), 
+                                      table.getValue("Y", row),
+                                      table.getValue("Z", row)))
+                                      
+    
     def createMask(self):
         self.generator.mask = NewImage.createByteImage("mask", self.generator.width, 
                                                                self.generator.height, 
@@ -83,6 +128,9 @@ def suite():
 
     suite.addTest(SpotGeneratorTest('testSampleUniformRandomPointsNoMask'))
     suite.addTest(SpotGeneratorTest('testSampleUniformRandomPointsWithMask'))
+    suite.addTest(SpotGeneratorTest('testCreateGroundTruthImage'))
+    suite.addTest(SpotGeneratorTest('testGetGroundTruthTableNoScale'))
+    suite.addTest(SpotGeneratorTest('testGetGroundTruthTableWithScale'))
     return suite
 
 

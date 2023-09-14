@@ -1,6 +1,8 @@
 from __future__ import division
 import random
 from ij.gui import NewImage
+from ij.measure import Calibration
+from ij.measure import ResultsTable
 from inra.ijpb.label.edit import FindAllLabels
 from inra.ijpb.measure.region3d import BoundingBox3D
 
@@ -13,11 +15,12 @@ class SpotGenerator:
         self.height = 512
         self.depth = 64
         self.bitDepth = 16
+        self.calibration = Calibration()
         self.mask = None
         self.numberOfSamples = 1000
         self.points = None
+        self.scaledPoints = None
         self.image = None
-        self.mask = None
         self.groundTruthImage = None
         
         
@@ -31,6 +34,7 @@ class SpotGenerator:
     def sampleUniformRandomPointsInMask(self):
         points = self.getPointsInMask()
         self.points = random.sample(points, self.numberOfSamples)
+        self.calibration = self.mask.getCalibration()
         
         
     def sampleUniformRandomPointsInImage(self):
@@ -81,3 +85,36 @@ class SpotGenerator:
         for point in self.points:
             stack.setVoxel(point[0], point[1], point[2], label)
             label = label + 1
+        self.groundTruthImage.setCalibration(self.calibration)
+            
+            
+    def getGroundTruthTable(self):
+        table = ResultsTable()
+        points = self.points
+        if self.calibration.scaled():
+            points = self.getScaledPoints()
+        for label, point in enumerate(points, start=1):
+            table.addRow()
+            table.addValue("X", point[0])
+            table.addValue("Y", point[1])
+            table.addValue("Z", point[2])
+            table.addValue("Label", label)
+        return table            
+            
+            
+    def getCalibration(self):
+        return self.calibration
+        
+        
+    def setScale(self, xScale, yScale, zScale, unit):
+        self.calibration.pixelWidth = xScale
+        self.calibration.pixelHeight = yScale
+        self.calibration.pixelDepth = zScale
+        self.calibration.unit = unit
+        
+        
+    def getScaledPoints(self):
+        scaledPoints = [(self.calibration.getX(x), 
+                        self.calibration.getY(y),
+                        self.calibration.getZ(z)) for (x, y, z) in self.points]
+        return scaledPoints
