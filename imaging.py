@@ -27,8 +27,8 @@ class Microscope:
         self.image = None
         self.psfSigma = 2
         self.backgroundPhotons = 10
-        self.xyGradient = 1             # 0 means no gradient
-        self.zGradientStdDev = 1        # 0 means no z-gradient
+        self.xyGradient = 0.01             # 0 means no gradient
+        self.zGradientStdDev = 20        # 0 means no z-gradient
         self.exposureTime = 10
         self.readStdDev = 5
         self.detectorGain = 1
@@ -52,7 +52,7 @@ class Microscope:
     def normalizeImage(self):
         stack = self.image.getStack()
         minValue, maxValue = self.getStackMinAndMax(self.image)
-        for i in range(1, stack.size+1):
+        for i in range(1, stack.size()+1):
             processor = stack.getProcessor(i)
             processor.subtract(minValue)
             processor.multiply((1 / (maxValue - minValue)) * self.maxPhotonEmission)
@@ -62,7 +62,7 @@ class Microscope:
         stack = image.getStack()
         mins = []
         maxs = []
-        for i in range(1, stack.size+1):
+        for i in range(1, stack.size()+1):
             processor = stack.getProcessor(i)
             stats = processor.getStats()
             mins.append(stats.min)
@@ -75,16 +75,18 @@ class Microscope:
     def addBackground(self):
         '''Background can be constant, contain a gradient in x,y and a grandient in z'''
         
-        if zGradientStdDev:
-            offset, height = self.getStackMinAndMax(self.image)
-            gaussian = Gaussian(offset, height, 0, zGradientStdDev)
-            for i in range(1, stack.size+1):
-                processor = stack.getProcessor(i)
-                processor.multiply(gaussian.f(i))
+        stack = self.image.getStack()
         
-        for i in range(1, stack.size+1):
+        
+        for i in range(1, stack.size()+1):
             processor = stack.getProcessor(i)
             processor.add(self.backgroundPhotons)
-            if xyGradient:
-                processor.applyMacro("code=v=v+((x+y)*") + self.xyGradient
+            if self.xyGradient:
+                processor.applyMacro("code=v=v+((x+y)*" + str(self.xyGradient) + ")") 
         
+        if self.zGradientStdDev:
+            offset, height = self.getStackMinAndMax(self.image)
+            gaussian = Gaussian(offset, height, 0, self.zGradientStdDev)
+            for i in range(1, stack.size()+1):
+                processor = stack.getProcessor(i)
+                processor.add(gaussian.f(i))
