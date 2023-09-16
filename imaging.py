@@ -2,10 +2,12 @@ from __future__ import division
 import math
 from ij.process import ImageConverter
 from ij.plugin import Duplicator
+from ij.plugin import GaussianBlur3D
+from ij.plugin import Binner
 from imagescience.random import Randomizer
 from imagescience.image import Image
 
-
+# Inspired by https://petebankhead.gitbooks.io/imagej-intro/content/chapters/macro_simulating/macro_simulating.html?q=
 
 class Gaussian:
     
@@ -18,26 +20,28 @@ class Gaussian:
         
     
     def f(self, x):
-        result = self.height + ((self.height - self.offset) * 
+        result = self.offset + ((self.height - self.offset) * 
                            math.exp(-(x - self.mean) * (x - self.mean) / (2 * self.stdDev * self.stdDev)))
         return result
-            
+                       
+
 
 class Microscope:
 
     def __init__(self):
         self.sample = None
         self.image = None
-        self.psfSigma = 2
+        self.psfSigmaXY = 1
+        self.psfSigmaZ = 1.2
         self.backgroundPhotons = 10
         self.xyGradient = 0.01             # 0 means no gradient
         self.zGradientStdDev = 20        # 0 means no z-gradient
         self.exposureTime = 10
-        self.readStdDev = 5
+        self.readStdDev = 1
         self.detectorGain = 1
         self.detectorOffset = 100
         self.bitDepth = 16
-        self.maxPhotonEmission = 100
+        self.maxPhotonEmission = 10
         self.binning = 1                # 1 means no binning
     
     
@@ -49,10 +53,20 @@ class Microscope:
         self.image = Duplicator().run(self.sample)
         ImageConverter(self.image).convertToGray32()
         self.normalizeImage()
-        self.addBackground()
+        self.multiplyExposureTime()
         self.addPhotonNoise()
+        self.addBackground()
+        self.convolveWithPSF()
+        self.applyDetectorGain()
+        if self.applyBinning > 1:
+            self.applyBinning()
+        self.applyDetectorOffset()
+        self.addReadoutNoise()
+        self.clipAndRound()
+        self.image.updateAndDraw()
+        self.image.resetDisplayRange()
         
-    
+   
     def normalizeImage(self):
         stack = self.image.getStack()
         minValue, maxValue = self.getStackMinAndMax(self.image)
@@ -80,8 +94,7 @@ class Microscope:
         '''Background can be constant, contain a gradient in x,y and a grandient in z'''
         
         stack = self.image.getStack()
-        
-        
+               
         for i in range(1, stack.size()+1):
             processor = stack.getProcessor(i)
             processor.add(self.backgroundPhotons)
@@ -99,5 +112,52 @@ class Microscope:
     def addPhotonNoise(self):
         image = Image.wrap(self.image)
         randomizer = Randomizer()
-        randomizer.poisson(image, 1, 2, False)
+        randomizer.poisson(image, 1, 2, False)  # Mean param unused, intensity is the mean
         self.image.updateAndDraw()
+
+
+    def convolveWithPSF(self):
+        GaussianBlur3D.blur(self.image, self.psfSigmaXY, self.psfSigmaXY, self.psfSigmaZ)
+        
+        
+    def multiplyExposureTime(self):
+         stack = self.image.getStack()
+         for i in range(1, stack.size()+1):
+            stack.getProcessor(i).multiply(self.exposureTime)
+            
+            
+    def applyDetectorGain(self):
+        stack = self.image.getStack()
+        for i in range(1, stack.size()+1):
+            stack.getProcessor(i).multiply(self.detectorGain) # (note this should really add Poisson noise too!)            
+            
+      
+    def applyDetectorOffset(self):
+        stack = self.image.getStack()
+        for i in range(1, stack.size()+1):          
+            stack.getProcessor(i).add(self.detectorOffset)
+            
+            
+    def applyBinning(self):
+        binner = Binner()
+        self.image = binner.shrink(self.image, self.binning, self.binning, 1, Binner.SUM)
+       
+            
+    def addReadoutNoise(self):
+        stack = self.image.getStack()
+        for i in range(1, stack.size()+1):          
+            stack.getProcessor(i).noise(self.readStdDev)
+            
+            
+    def clipAndRound(self):
+        stack = self.image.getStack()
+        maxVal = pow(2, self.bitDepth) - 1
+        for i in range(1, stack.size()+1):
+            processor = stack.getProcessor(i)
+            processor.min(0)
+            processor.max(maxVal)
+            pixels = stack.getPixels(i)
+            for p in range(len(pixels)):
+                pixels[p] = round(pixels[p])
+            stack.setPixels(pixels, i)
+                
