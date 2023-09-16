@@ -2,6 +2,9 @@ from __future__ import division
 import math
 from ij.process import ImageConverter
 from ij.plugin import Duplicator
+from imagescience.random import Randomizer
+from imagescience.image import Image
+
 
 
 class Gaussian:
@@ -34,7 +37,7 @@ class Microscope:
         self.detectorGain = 1
         self.detectorOffset = 100
         self.bitDepth = 16
-        self.maxPhotonEmission = 10
+        self.maxPhotonEmission = 100
         self.binning = 1                # 1 means no binning
     
     
@@ -47,7 +50,8 @@ class Microscope:
         ImageConverter(self.image).convertToGray32()
         self.normalizeImage()
         self.addBackground()
-    
+        self.addPhotonNoise()
+        
     
     def normalizeImage(self):
         stack = self.image.getStack()
@@ -90,3 +94,10 @@ class Microscope:
             for i in range(1, stack.size()+1):
                 processor = stack.getProcessor(i)
                 processor.add(gaussian.f(i))
+                
+                
+    def addPhotonNoise(self):
+        image = Image.wrap(self.image)
+        randomizer = Randomizer()
+        randomizer.poisson(image, 1, 2, False)
+        self.image.updateAndDraw()
