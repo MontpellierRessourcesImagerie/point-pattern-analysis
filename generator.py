@@ -1,5 +1,6 @@
 from __future__ import division
 import random
+import math
 from ij.gui import NewImage
 from ij.measure import Calibration
 from ij.measure import ResultsTable
@@ -18,6 +19,10 @@ class SpotGenerator:
         self.calibration = Calibration()
         self.mask = None
         self.numberOfSamples = 1000
+        self.numberOfClusters = 50
+        self.clusterCenters = None
+        self.maxDistFromClusterCenter = 90
+        self.maxDistFromGrid = 0
         self.points = None
         self.scaledPoints = None
         self.image = None
@@ -30,16 +35,96 @@ class SpotGenerator:
         else:
             self.sampleUniformRandomPointsInImage()
             
-           
+            
+    def sampleDispersedPoints(self):
+        if self.mask:
+            self.sampleDispersedPointsInMask()
+        else:
+            self.sampleDispersedPointsInImage()
+        if self.maxDistFromGrid:
+            self.addRandomShiftToPoints(self.maxDistFromGrid)
+        
+    
+    def sampleClusteredPoints(self):
+        if self.mask:
+            self.sampleClusteredPointsInMask()
+        else:
+            self.sampleClusteredPointsInImage()
+        
+    
     def sampleUniformRandomPointsInMask(self):
         points = self.getPointsInMask()
         self.points = random.sample(points, self.numberOfSamples)
         self.calibration = self.mask.getCalibration()
         
+    
+    def sampleDispersedPointsInMask(self):
+        points = self.getPointsInMask()
+        if len(points) <= self.numberOfSamples:
+            self.points = points
+        else:
+            delta = len(points) // self.numberOfSamples
+            self.points = []
+            for i in range(0, len(points), delta):
+                self.points.append(points[i])
+                
+    
+    def sampleClusteredPointsInMask(self):
+        points = self.getPointsInMask()
+        self.clusterCenters = random.sample(points, self.numberOfClusters)
+        self.points = random.sample(range(len(clusterCenters)), self.numberOfSamples)
+        self.addRandomShiftToPoints(self.maxDistFromClusterCenter)
         
+            
     def sampleUniformRandomPointsInImage(self):
         sampleIndices = random.sample(xrange(self.width * self.height * self.depth), self.numberOfSamples)
         self.points = self.indicesToCoordinates(sampleIndices)
+        
+    
+    def sampleDispersedPointsInImage(self):
+        N = self.width * self.height * self.depth
+        delta = N // self.numberOfSamples
+        sampleIndices = range(0, N, delta)
+        self.points = self.indicesToCoordinates(sampleIndices)
+        
+    
+    def sampleClusteredPointsInImage(self):
+        sampleIndices = random.sample(xrange(self.width * self.height * self.depth), self.numberOfClusters)
+        clusterCenters = self.indicesToCoordinates(sampleIndices)
+        self.points = [random.choice(clusterCenters) for _ in range(self.numberOfSamples)]
+        self.addRandomShiftToPoints(self.maxDistFromClusterCenter)
+    
+    
+    def addRandomShiftToPoints(self, maxDist):
+        newPoints = [0] * len(self.points)
+        for index, point in enumerate(self.points):
+            shiftedPoint = self.getShiftedPoint(point, maxDist)
+            newPoints[index] = shiftedPoint
+        self.points = newPoints
+        
+    
+    def getShiftedPoint(self, point, maxDist):  
+        x = random.random()
+        y = random.random()
+        z = random.random()
+        d = random.uniform(0, maxDist)     
+        if self.calibration.scaled():
+            x = calibration.getX(x)
+            y = calibration.getY(y)
+            z = calibration.getZ(z)
+        l = math.sqrt(x*x + y*y + z*z)
+        x = (x / l) * d
+        y = (y / l) * d
+        z = (z / l) * d
+        if self.calibration.scaled():
+             x = point[0] + int(calibration.getRawX(x))
+             y = point[1] + int(calibration.getRawY(y))
+             z = point[2] + int(calibration.getRawZ(z))
+        else:
+             x = point[0] + int(round(x))
+             y = point[1] + int(round(y))
+             z = point[2] + int(round(z))
+        return (x, y, z)
         
     
     def indicesToCoordinates(self, indices):

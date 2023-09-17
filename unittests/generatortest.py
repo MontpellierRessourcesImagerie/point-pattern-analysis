@@ -24,7 +24,7 @@ class SpotGeneratorTest(unittest.TestCase):
     def testSampleUniformRandomPointsNoMask(self):
         self.generator.sampleUniformRandomPoints()
         
-        # test if the right number of points has been sampled
+        # test if the right number of points has been sampled
         self.assertEquals(self.generator.numberOfSamples, len(self.generator.points))
 
         # test if the first sample has 3 coordinates
@@ -38,7 +38,7 @@ class SpotGeneratorTest(unittest.TestCase):
         self.createMask()
         self.generator.sampleUniformRandomPoints()
         
-        # test if the right number of points has been sampled
+        # test if the right number of points has been sampled
         self.assertEquals(self.generator.numberOfSamples, len(self.generator.points))
         
         # test if the first sample has 3 coordinates
@@ -52,7 +52,7 @@ class SpotGeneratorTest(unittest.TestCase):
         for point in self.generator.points:
             self.assertEquals(255, stack.getVoxel(point[0], point[1], point[2]))
         
-        # assert no points outside of the mask have been sampled
+        # assert no points outside of the mask have been sampled
         count = 0
         for x in range(self.generator.width):
             for y in range(self.generator.height):
@@ -71,7 +71,7 @@ class SpotGeneratorTest(unittest.TestCase):
         # The ground-truth image should contain one label for each point
         self.assertEquals(len(self.generator.points), len(labels))
 
-        # The label of the first point must be one
+        # The label of the first point must be one
         self.assertEquals(1, min(labels))
 
         # The label of the last point corresponds to the number of points
@@ -93,7 +93,7 @@ class SpotGeneratorTest(unittest.TestCase):
                                       
                                       
     def testGetGroundTruthTableWithScale(self):
-        self.generator.setScale(0.2, 0.2, 0.6, "µm")
+        self.generator.setScale(0.2, 0.2, 0.6, chr(181) + "m")
         self.generator.sampleUniformRandomPoints()
         table = self.generator.getGroundTruthTable()
         
@@ -141,4 +141,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()    
+    main()

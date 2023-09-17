@@ -50,7 +50,6 @@ class GaussianTest(unittest.TestCase):
         
         # Test that the gaussian for a bif value is still not below the offset
         gaussian = Gaussian(0.5, 1, 5, 1)   
-        print(gaussian.f(10000000))
         self.assertTrue(gaussian.f(10000000) >= 0.5)
         
         
