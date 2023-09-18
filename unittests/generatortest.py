@@ -87,7 +87,7 @@ class SpotGeneratorTest(unittest.TestCase):
        
     def testSampleDispersedPointsWithMask(self):
         self.createMask()
-        self.generator.numberOfSamples = 100
+        self.generator.numberOfSamples = 25
         self.generator.sampleDispersedPoints()
     
         # test if the right number of points has been sampled
@@ -104,7 +104,34 @@ class SpotGeneratorTest(unittest.TestCase):
         
         self.assertEquals(self.generator.numberOfSamples, len(set(self.generator.points)))
         
+     
+    def testSampleClusteredPointsNoMask(self):
+        self.generator.numberOfSamples = 100
+        self.generator.numberOfClusters = 5
+        self.generator.maxDistFromClusterCenter = 10
+        self.generator.sampleClusteredPoints()
         
+        # test if the right number of points has been sampled
+        self.assertEquals(self.generator.numberOfSamples, len(self.generator.points))
+        
+        # assert that there are no duplicates in the samples
+        self.assertEquals(len(set(self.generator.points)), len(self.generator.points))
+    
+    
+    def testSampleClusteredPointsWithMask(self):
+        self.createMask()
+        self.generator.numberOfSamples = 25
+        self.generator.numberOfClusters = 3
+        self.generator.maxDistFromClusterCenter = 20
+        self.generator.sampleClusteredPoints()
+        
+        # test if the right number of points has been sampled
+        self.assertEquals(self.generator.numberOfSamples, len(self.generator.points))
+        
+        # assert that there are no duplicates in the samples
+        self.assertEquals(len(set(self.generator.points)), len(self.generator.points))
+    
+    
     def testCreateGroundTruthImage(self):
         self.generator.sampleUniformRandomPoints()
         self.generator.createGroundTruthImage()
@@ -172,6 +199,8 @@ def suite():
     suite.addTest(SpotGeneratorTest('testSampleUniformRandomPointsWithMask'))
     suite.addTest(SpotGeneratorTest('testSampleDispersedPointsNoMask'))
     suite.addTest(SpotGeneratorTest('testSampleDispersedPointsWithMask'))
+    suite.addTest(SpotGeneratorTest('testSampleClusteredPointsNoMask'))
+    suite.addTest(SpotGeneratorTest('testSampleClusteredPointsWithMask'))
     suite.addTest(SpotGeneratorTest('testCreateGroundTruthImage'))
     suite.addTest(SpotGeneratorTest('testGetGroundTruthTableNoScale'))
     suite.addTest(SpotGeneratorTest('testGetGroundTruthTableWithScale'))

@@ -16,9 +16,9 @@ class SpotGenerator:
         self.width = 512
         self.height = 512
         self.depth = 64
-        self.bitDepth = 16
         self.calibration = Calibration()
         self.mask = None
+        self.bitDepth = 16        
         self.numberOfSamples = 1000
         self.numberOfClusters = 50
         self.clusterCenters = None
@@ -75,12 +75,12 @@ class SpotGenerator:
     def sampleClusteredPointsInMask(self):
         points = self.getPointsInMask()
         self.clusterCenters = random.sample(points, self.numberOfClusters)
-        self.points = random.sample(range(len(clusterCenters)), self.numberOfSamples)
+        self.points = [random.choice(self.clusterCenters) for _ in range(self.numberOfSamples)]
         self.addRandomShiftToPoints(self.maxDistFromClusterCenter)
         IJ.log("Randomly selected " + str(len(self.points)) + 
                " clustered points from the " + str(len(points)) + " points in the mask in " + str(len(self.clusterCenters)) + " clusters.")  
                
-            
+  
     def sampleUniformRandomPointsInImage(self):
         N = self.width * self.height * self.depth
         sampleIndices = random.sample(xrange(N), self.numberOfSamples)
@@ -100,24 +100,30 @@ class SpotGenerator:
     def sampleClusteredPointsInImage(self):
         N = self.width * self.height * self.depth
         sampleIndices = random.sample(xrange(N), self.numberOfClusters)
-        clusterCenters = self.indicesToCoordinates(sampleIndices)
-        self.points = [random.choice(clusterCenters) for _ in range(self.numberOfSamples)]
+        self.clusterCenters = self.indicesToCoordinates(sampleIndices)
+        self.points = [random.choice(self.clusterCenters) for _ in range(self.numberOfSamples)]
         self.addRandomShiftToPoints(self.maxDistFromClusterCenter)
         IJ.log("Randomly selected " + str(len(self.points)) + 
-               " clustered points from the " + str(N) + " points in the image in " + str(len(self(clusterCenters))) + " clusters.")
+               " clustered points from the " + str(N) + 
+               " points in the image in " + str(len(self.clusterCenters)) + " clusters.")
   
   
     def addRandomShiftToPoints(self, maxDist):
         newPoints = [0] * len(self.points)
-        stack = None
-        if self.mask:
-            stack = self.mask.getStack()
+        maxTrials = 1000
         for index, point in enumerate(self.points):
-            shiftedPoint = self.getShiftedPoint(point, maxDist)
-            newPoints[index] = shiftedPoint
             if self.mask:
-                if stack.getVoxel(shiftedPoint[0], shiftedPoint[1], shiftedPoint[2]) == 0:
-                    newPoints[index] = point            
+                stack = self.mask.getStack()
+            shiftedPoint = point
+            trial = 0
+            while (self.mask and (trial < maxTrials and (trial==0 or shiftedPoint in newPoints or stack.getVoxel(shiftedPoint[0], shiftedPoint[1], shiftedPoint[2]) == 0)) 
+               or (not self.mask and (trial < maxTrials and (trial==0 or shiftedPoint in newPoints)))):
+                shiftedPoint = self.getShiftedPoint(point, maxDist)                   
+                if trial == maxTrials - 1:
+                    IJ.log("no new shifted point found!")
+                    shiftedPoint = point
+                trial = trial + 1
+            newPoints[index] = shiftedPoint
         self.points = newPoints
         
     
@@ -226,3 +232,20 @@ class SpotGenerator:
                         self.calibration.getY(y),
                         self.calibration.getZ(z)) for (x, y, z) in self.points]
         return scaledPoints
+        
+        
+    def setMask(self, mask):
+        if not mask:
+            self.reset()
+        else:
+            self.mask = mask    
+            self.width, self.height, _, self.depth, _ = self.mask.getDimensions()
+            self.calibration = mask.getCalibration()
+        
+        
+    def reset(self):
+        self.width = 512
+        self.height = 512
+        self.depth = 64
+        self.calibration = Calibration()
+        self.mask = None
