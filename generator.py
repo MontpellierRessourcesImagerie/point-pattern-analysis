@@ -1,6 +1,7 @@
 from __future__ import division
 import random
 import math
+from ij import IJ
 from ij.gui import NewImage
 from ij.measure import Calibration
 from ij.measure import ResultsTable
@@ -53,53 +54,70 @@ class SpotGenerator:
         
     
     def sampleUniformRandomPointsInMask(self):
-        points = self.getPointsInMask()
+        points = self.getPointsInMask()       
         self.points = random.sample(points, self.numberOfSamples)
         self.calibration = self.mask.getCalibration()
+        IJ.log("Randomly selected " + str(len(self.points)) + 
+               " uniformly distributed points from the " + str(len(points)) + " points in the mask.")        
         
     
     def sampleDispersedPointsInMask(self):
-        points = self.getPointsInMask()
-        if len(points) <= self.numberOfSamples:
-            self.points = points
+        pointsInMask = self.getPointsInMask()
+        if len(pointsInMask) <= self.numberOfSamples:
+            self.points = pointsInMask
         else:
-            delta = len(points) // self.numberOfSamples
-            self.points = []
-            for i in range(0, len(points), delta):
-                self.points.append(points[i])
-                
+            delta = len(pointsInMask) / self.numberOfSamples
+            self.points = [pointsInMask[int(math.floor(i*delta))] for i in range(0, self.numberOfSamples)]
+        IJ.log("Randomly selected " + str(len(self.points)) + 
+               " dispersed points from the " + str(len(pointsInMask)) + " points in the mask.")          
+    
     
     def sampleClusteredPointsInMask(self):
         points = self.getPointsInMask()
         self.clusterCenters = random.sample(points, self.numberOfClusters)
         self.points = random.sample(range(len(clusterCenters)), self.numberOfSamples)
         self.addRandomShiftToPoints(self.maxDistFromClusterCenter)
-        
+        IJ.log("Randomly selected " + str(len(self.points)) + 
+               " clustered points from the " + str(len(points)) + " points in the mask in " + str(len(self.clusterCenters)) + " clusters.")  
+               
             
     def sampleUniformRandomPointsInImage(self):
-        sampleIndices = random.sample(xrange(self.width * self.height * self.depth), self.numberOfSamples)
+        N = self.width * self.height * self.depth
+        sampleIndices = random.sample(xrange(N), self.numberOfSamples)
         self.points = self.indicesToCoordinates(sampleIndices)
-        
+        IJ.log("Randomly selected " + str(len(self.points)) + 
+               " uniformly distributed points from the " + str(N) + " points in the image.")
+    
     
     def sampleDispersedPointsInImage(self):
         N = self.width * self.height * self.depth
-        delta = N // self.numberOfSamples
-        sampleIndices = range(0, N, delta)
+        delta = N / self.numberOfSamples
+        sampleIndices = [int(math.floor(i*delta)) for i in range(0, self.numberOfSamples)]
         self.points = self.indicesToCoordinates(sampleIndices)
-        
+        IJ.log("Randomly selected " + str(len(self.points)) + " dispersed points from the " + str(N) + " points in the image with max. grid distance = " + str(self.maxDistFromGrid) + ".")
+               
     
     def sampleClusteredPointsInImage(self):
-        sampleIndices = random.sample(xrange(self.width * self.height * self.depth), self.numberOfClusters)
+        N = self.width * self.height * self.depth
+        sampleIndices = random.sample(xrange(N), self.numberOfClusters)
         clusterCenters = self.indicesToCoordinates(sampleIndices)
         self.points = [random.choice(clusterCenters) for _ in range(self.numberOfSamples)]
         self.addRandomShiftToPoints(self.maxDistFromClusterCenter)
-    
-    
+        IJ.log("Randomly selected " + str(len(self.points)) + 
+               " clustered points from the " + str(N) + " points in the image in " + str(len(self(clusterCenters))) + " clusters.")
+  
+  
     def addRandomShiftToPoints(self, maxDist):
         newPoints = [0] * len(self.points)
+        stack = None
+        if self.mask:
+            stack = self.mask.getStack()
         for index, point in enumerate(self.points):
             shiftedPoint = self.getShiftedPoint(point, maxDist)
             newPoints[index] = shiftedPoint
+            if self.mask:
+                if stack.getVoxel(shiftedPoint[0], shiftedPoint[1], shiftedPoint[2]) == 0:
+                    newPoints[index] = point            
         self.points = newPoints
         
     
@@ -124,8 +142,10 @@ class SpotGenerator:
              x = point[0] + int(round(x))
              y = point[1] + int(round(y))
              z = point[2] + int(round(z))
+        x, y, z = (x % self.width, y % self.height, z % self.depth)              
         return (x, y, z)
-        
+       
+    
     
     def indicesToCoordinates(self, indices):
         coordinates = []
@@ -160,10 +180,13 @@ class SpotGenerator:
         
         
     def createGroundTruthImage(self):
+        width, height, depth = self.width, self.height, self.depth
+        if self.mask:
+            width, height, _, depth, _ = self.mask.getDimensions()
         self.groundTruthImage = NewImage.createImage("Ground Truth Labels", 
-                                                     self.width, 
-                                                     self.height, 
-                                                     self.depth, 
+                                                     width, 
+                                                     height, 
+                                                     depth, 
                                                      self.bitDepth, NewImage.FILL_BLACK)
         label = 1
         stack = self.groundTruthImage.getStack()

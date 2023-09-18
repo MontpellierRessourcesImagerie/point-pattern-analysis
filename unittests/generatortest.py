@@ -63,6 +63,48 @@ class SpotGeneratorTest(unittest.TestCase):
         self.assertTrue(count > 0)
                         
 
+    def testSampleDispersedPointsNoMask(self):
+        self.generator.numberOfSamples = 100
+        self.generator.sampleDispersedPoints()
+    
+        # test if the right number of points has been sampled
+        self.assertEquals(self.generator.numberOfSamples, len(self.generator.points))
+        
+        self.generator.maxDistFromGrid = 3
+        self.generator.sampleDispersedPoints()
+        
+        self.assertEquals(self.generator.numberOfSamples, len(self.generator.points))
+        for x, y, z in self.generator.points:
+            self.assertTrue(x >= 0)
+            self.assertTrue(y >= 0)
+            self.assertTrue(z >= 0)
+            self.assertTrue(x < self.generator.width)
+            self.assertTrue(y < self.generator.height)
+            self.assertTrue(z < self.generator.depth)
+       
+        self.assertEquals(self.generator.numberOfSamples, len(set(self.generator.points)))
+       
+       
+    def testSampleDispersedPointsWithMask(self):
+        self.createMask()
+        self.generator.numberOfSamples = 100
+        self.generator.sampleDispersedPoints()
+    
+        # test if the right number of points has been sampled
+        self.assertEquals(self.generator.numberOfSamples, len(self.generator.points))
+        for x, y, z in self.generator.points:
+            pixelValue = self.generator.mask.getStack().getVoxel(x, y, z)
+            self.assertTrue(pixelValue > 0)
+           
+        self.generator.maxDistFromGrid = 3
+        self.generator.sampleDispersedPoints()
+        for x, y, z in self.generator.points:
+            pixelValue = self.generator.mask.getStack().getVoxel(x, y, z)
+            self.assertTrue(pixelValue > 0)
+        
+        self.assertEquals(self.generator.numberOfSamples, len(set(self.generator.points)))
+        
+        
     def testCreateGroundTruthImage(self):
         self.generator.sampleUniformRandomPoints()
         self.generator.createGroundTruthImage()
@@ -128,6 +170,8 @@ def suite():
 
     suite.addTest(SpotGeneratorTest('testSampleUniformRandomPointsNoMask'))
     suite.addTest(SpotGeneratorTest('testSampleUniformRandomPointsWithMask'))
+    suite.addTest(SpotGeneratorTest('testSampleDispersedPointsNoMask'))
+    suite.addTest(SpotGeneratorTest('testSampleDispersedPointsWithMask'))
     suite.addTest(SpotGeneratorTest('testCreateGroundTruthImage'))
     suite.addTest(SpotGeneratorTest('testGetGroundTruthTableNoScale'))
     suite.addTest(SpotGeneratorTest('testGetGroundTruthTableWithScale'))
