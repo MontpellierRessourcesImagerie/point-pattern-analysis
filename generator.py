@@ -5,6 +5,8 @@ from ij import IJ
 from ij.gui import NewImage
 from ij.measure import Calibration
 from ij.measure import ResultsTable
+from ij.plugin import LutLoader
+from ij.process import LUT 
 from inra.ijpb.label.edit import FindAllLabels
 from inra.ijpb.measure.region3d import BoundingBox3D
 
@@ -21,13 +23,14 @@ class SpotGenerator:
         self.bitDepth = 16        
         self.numberOfSamples = 1000
         self.numberOfClusters = 50
-        self.clusterCenters = None
         self.maxDistFromClusterCenter = 90
+        self.clusterCenters = None        
         self.maxDistFromGrid = 0
         self.points = None
         self.scaledPoints = None
         self.image = None
         self.groundTruthImage = None
+        self.lutName = "glasbey on dark"
         
         
     def sampleUniformRandomPoints(self):
@@ -133,17 +136,17 @@ class SpotGenerator:
         z = random.random()
         d = random.uniform(0, maxDist)     
         if self.calibration.scaled():
-            x = calibration.getX(x)
-            y = calibration.getY(y)
-            z = calibration.getZ(z)
+            x = self.calibration.getX(x)
+            y = self.calibration.getY(y)
+            z = self.calibration.getZ(z)
         l = math.sqrt(x*x + y*y + z*z)
         x = (x / l) * d
         y = (y / l) * d
         z = (z / l) * d
         if self.calibration.scaled():
-             x = point[0] + int(calibration.getRawX(x))
-             y = point[1] + int(calibration.getRawY(y))
-             z = point[2] + int(calibration.getRawZ(z))
+             x = point[0] + int(self.calibration.getRawX(x))
+             y = point[1] + int(self.calibration.getRawY(y))
+             z = point[2] + int(self.calibration.getRawZ(z))
         else:
              x = point[0] + int(round(x))
              y = point[1] + int(round(y))
@@ -186,6 +189,7 @@ class SpotGenerator:
         
         
     def createGroundTruthImage(self):
+        lut = LUT(LutLoader.getLut( self.lutName ), 0, 255);
         width, height, depth = self.width, self.height, self.depth
         if self.mask:
             width, height, _, depth, _ = self.mask.getDimensions()
@@ -200,7 +204,9 @@ class SpotGenerator:
             stack.setVoxel(point[0], point[1], point[2], label)
             label = label + 1
         self.groundTruthImage.setCalibration(self.calibration)
-            
+        self.groundTruthImage.getChannelProcessor().setLut(lut)
+        self.groundTruthImage.resetDisplayRange()
+        
             
     def getGroundTruthTable(self):
         table = ResultsTable()
