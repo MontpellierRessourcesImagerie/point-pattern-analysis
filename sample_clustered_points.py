@@ -94,7 +94,7 @@ def main():
     gen.createGroundTruthImage()
     gen.groundTruthImage.show()
     table = gen.getGroundTruthTable()
-    table.show("Random Points Uniform Distribution")
+    table.show("Clustered Random Points")
     endTime = time.time()
     IJ.log("Finished sampling at " + str(datetime.datetime.fromtimestamp(endTime)))
     IJ.log("Duration of calculation: " + str(datetime.timedelta(seconds=endTime-startTime)))
