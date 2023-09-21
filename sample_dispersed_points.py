@@ -1,15 +1,15 @@
 ###############################################################################################
 ##
-## sample_clustered_points.py
+## sample_dispersed_points.py
 ##
-## Answers a number of clustered points in the image or mask with a given number of cluster centers
-## and a max. distance of the points from a center
+## Answers a number of dispersed points in the image or mask with a given maximal distance of
+## each point from the grid points.
 ## 
 ## (c) 2023 INSERM
 ##
 ## written by Volker Baecker at the MRI-Center for Image Analysis (MRI-CIA - https://www.mri.cnrs.fr/en/data-analysis.html)
 ##
-## sample_clustered_points.py is free software under the MIT license.
+## sample_dispersed_points.py is free software under the MIT license.
 ## 
 ## MIT License
 ##
@@ -45,7 +45,6 @@ from ij.gui import GenericDialog
 from fr.cnrs.mri.cialib.generator import SpotGenerator
 from fr.cnrs.mri.cialib.imaging import Microscope
 
-
 URL = "https://github.com/MontpellierRessourcesImagerie/point-pattern-analysis/wiki/3D_Synthetic_Spots";
 
 IMAGE_WIDTH = 512
@@ -58,10 +57,8 @@ VOXEL_SIZE_Z = 5
 UNIT = chr(181) + "m"
 MASK = None
 NUMBER_OF_SAMPLES = 1000
-NUMBER_OF_CLUSTERS = 50
-MAX_DIST_FROM_CLUSTER_CENTER = 90
+MAX_DIST_FROM_GRID = 30
 SAVE_OPTIONS = True
-
 
 def main():
     optionsOnly = Prefs.get("mri.options.only", "false")
@@ -88,13 +85,12 @@ def main():
     gen.calibration.pixelDepth = VOXEL_SIZE_Z
     gen.calibration.setUnit(UNIT)
     gen.numberOfSamples = NUMBER_OF_SAMPLES
-    gen.numberOfClusters = NUMBER_OF_CLUSTERS
-    gen.maxDistFromClusterCenter = MAX_DIST_FROM_CLUSTER_CENTER
-    gen.sampleClusteredPoints()
+    gen.maxDistFromGrid = MAX_DIST_FROM_GRID
+    gen.sampleDispersedPoints()
     gen.createGroundTruthImage()
     gen.groundTruthImage.show()
     table = gen.getGroundTruthTable()
-    table.show("Clustered Random Points")
+    table.show("Dispersed Random Points")
     endTime = time.time()
     IJ.log("Finished sampling at " + str(datetime.datetime.fromtimestamp(endTime)))
     IJ.log("Duration of calculation: " + str(datetime.timedelta(seconds=endTime-startTime)))
@@ -102,12 +98,12 @@ def main():
     
 def showDialog():
     global IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_DEPTH, IMAGE_TYPE, VOXEL_SIZE_XY, VOXEL_SIZE_Z, UNIT, \
-           MASK, NUMBER_OF_SAMPLES, NUMBER_OF_CLUSTERS, MAX_DIST_FROM_CLUSTER_CENTER, SAVE_OPTIONS
+           MASK, NUMBER_OF_SAMPLES, MAX_DIST_FROM_GRID, SAVE_OPTIONS
     
     images = ["None"] + list(WindowManager.getImageTitles())
     if  os.path.exists(getOptionsPath()):
         loadOptions()
-    gd = GenericDialog("Sample Clusered Random Points Options"); 
+    gd = GenericDialog("Sample Dispersed Random Points Options"); 
     gd.addNumericField("Width Of Image: ", IMAGE_WIDTH)
     gd.addNumericField("Height Of Image: ", IMAGE_HEIGHT)
     gd.addNumericField("Depth Of Image: ", IMAGE_DEPTH)
@@ -116,8 +112,7 @@ def showDialog():
     gd.addNumericField("Z-size of Voxel: ", VOXEL_SIZE_Z)
     gd.addStringField("Unit: ", UNIT)
     gd.addNumericField("Number Of Samples: ", NUMBER_OF_SAMPLES)
-    gd.addNumericField("Clusters: ", NUMBER_OF_CLUSTERS)
-    gd.addNumericField("Max.-Dist. from cluster center", MAX_DIST_FROM_CLUSTER_CENTER) 
+    gd.addNumericField("Max.-Dist. from grid", MAX_DIST_FROM_GRID) 
     if images:
         gd.addChoice("Mask: ", images, MASK)
     gd.addCheckbox("Save Options", SAVE_OPTIONS)
@@ -133,8 +128,7 @@ def showDialog():
     VOXEL_SIZE_Z = gd.getNextNumber()
     UNIT = gd.getNextString()
     NUMBER_OF_SAMPLES = int(gd.getNextNumber())
-    NUMBER_OF_CLUSTERS = int(gd.getNextNumber())
-    MAX_DIST_FROM_CLUSTER_CENTER = float(gd.getNextNumber())
+    MAX_DIST_FROM_GRID = float(gd.getNextNumber())
     if images:
         MASK = gd.getNextChoice()
         if MASK=="None":
@@ -147,7 +141,7 @@ def showDialog():
   
 def getOptionsPath():
     pluginsPath = IJ.getDirectory("plugins")
-    optionsPath = pluginsPath + "3D_Synthetic_Spots/3dscp-options.txt"
+    optionsPath = pluginsPath + "3D_Synthetic_Spots/3dsdp-options.txt"
     return optionsPath
  
 
@@ -161,15 +155,14 @@ def getOptionsString():
     optionsString = optionsString + " z-size=" + str(VOXEL_SIZE_Z) 
     optionsString = optionsString + u" unit=" + UNIT
     optionsString = optionsString + " number=" + str(NUMBER_OF_SAMPLES) 
-    optionsString = optionsString + " clusters=" + str(NUMBER_OF_CLUSTERS) 
-    optionsString = optionsString + " max-dist=" + str(MAX_DIST_FROM_CLUSTER_CENTER) 
+    optionsString = optionsString + " max-dist=" + str(MAX_DIST_FROM_GRID) 
       
     return optionsString
     
     
 def loadOptions(): 
     global IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_DEPTH, IMAGE_TYPE, VOXEL_SIZE_XY, VOXEL_SIZE_Z, \
-           UNIT, MASK, NUMBER_OF_SAMPLES, NUMBER_OF_CLUSTERS, MAX_DIST_FROM_CLUSTER_CENTER 
+           UNIT, MASK, NUMBER_OF_SAMPLES, MAX_DIST_FROM_GRID
     
     optionsPath = getOptionsPath()
     optionsString = IJ.openAsString(optionsPath)
@@ -197,10 +190,8 @@ def loadOptions():
             UNIT = value
         if key=="number":
             NUMBER_OF_SAMPLES = int(value)    
-        if key=="clusters":
-            NUMBER_OF_CLUSTERS  = int(value)
         if key=="max-dist":
-            MAX_DIST_FROM_CLUSTER_CENTER = float(value)    
+            MAX_DIST_FROM_GRID = float(value)    
 
 
 def saveOptions():
@@ -209,4 +200,4 @@ def saveOptions():
     IJ.saveString(optionsString, getOptionsPath())
     
     
-main()   
+main()
