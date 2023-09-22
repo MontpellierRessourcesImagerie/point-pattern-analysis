@@ -46,7 +46,7 @@ from fr.cnrs.mri.cialib.generator import SpotGenerator
 from fr.cnrs.mri.cialib.imaging import Microscope
 
 
-URL = "https://github.com/MontpellierRessourcesImagerie/point-pattern-analysis/wiki/3D_Synthetic_Spots";
+URL = "https://github.com/MontpellierRessourcesImagerie/point-pattern-analysis/wiki/3D_Synthetic_Spots"
 
 IMAGE_WIDTH = 512
 IMAGE_HEIGHT = 512
@@ -107,7 +107,7 @@ def showDialog():
     images = ["None"] + list(WindowManager.getImageTitles())
     if  os.path.exists(getOptionsPath()):
         loadOptions()
-    gd = GenericDialog("Sample Clusered Random Points Options"); 
+    gd = GenericDialog("Sample Clustered Random Points Options")
     gd.addNumericField("Width Of Image: ", IMAGE_WIDTH)
     gd.addNumericField("Height Of Image: ", IMAGE_HEIGHT)
     gd.addNumericField("Depth Of Image: ", IMAGE_DEPTH)
