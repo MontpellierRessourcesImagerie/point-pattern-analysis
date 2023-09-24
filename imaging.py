@@ -6,8 +6,11 @@ from ij.plugin import GaussianBlur3D
 from ij.plugin import Binner
 from imagescience.random import Randomizer
 from imagescience.image import Image
+from fr.cnrs.mri.cialib.options import Options
 
 # Inspired by https://petebankhead.gitbooks.io/imagej-intro/content/chapters/macro_simulating/macro_simulating.html?q=
+
+
 
 class Gaussian:
     
@@ -28,7 +31,7 @@ class Gaussian:
 
 class Microscope:
 
-    def __init__(self):
+    def __init__(self, options=None):
         self.sample = None
         self.image = None
         self.psfSigmaXY = 1
@@ -43,6 +46,21 @@ class Microscope:
         self.bitDepth = 16
         self.maxPhotonEmission = 10
         self.binning = 1                # 1 means no binning
+        self.optionsMap = {'psfSigmaXY': 'sigma_xy', 
+                           'psfSigmaZ': 'sigma_z', 
+                           'backgroundPhotons': 'background',
+                           'xyGradient': 'gradient_xy',
+                           'zGradientStdDev': 'gradient_z',
+                           'exposureTime': 'exposure',
+                           'readStdDev': 'read_noise',
+                           'detectorGain': 'gain',
+                           'detectorOffset': 'offset',
+                           'bitDepth': 'bit',
+                           'maxPhotonEmission': 'max._photon',
+                           'binning': 'binning'
+                          }
+        if options:
+            self.setOptions(options)
     
     
     def mountSample(self, aPhantomImage):
@@ -58,7 +76,7 @@ class Microscope:
         self.addBackground()
         self.convolveWithPSF()
         self.applyDetectorGain()
-        if self.applyBinning > 1:
+        if self.binning > 1:
             self.applyBinning()
         self.applyDetectorOffset()
         self.addReadoutNoise()
@@ -161,3 +179,7 @@ class Microscope:
                 pixels[p] = round(pixels[p])
             stack.setPixels(pixels, i)
                 
+                
+    def setOptions(self, options):
+        for key, value in self.optionsMap.items():
+            setattr(self, key, options.value(value))
