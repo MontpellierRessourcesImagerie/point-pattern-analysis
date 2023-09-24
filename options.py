@@ -141,7 +141,8 @@ class Option(object):
         self.order = 0
         self.helpText = ""
         self.type = "string"
-            
+        self.conversions = None
+        
 
     def getKey(self):
         return self.key
@@ -183,6 +184,13 @@ class Option(object):
         self.value = dialog.getNextString()
    
    
+    def getConvertedValue(self):       
+        if not self.conversions:
+            return self.value
+        convertedValue = self.conversions[self.getValue()]
+        return convertedValue
+        
+        
     def __str__(self):
         return self.__repr__()
     
@@ -196,7 +204,7 @@ class Option(object):
     def fromDict(cls, aDict):
         types = {'int': IntOption, 'float': FloatOption, 
                  'string': StringOption, 'bool': BooleanOption, 
-                 'choice': ChoiceOption}
+                 'choice': ChoiceOption, 'image-choice': ImageChoiceOption}
         option = types[aDict['type']](aDict['key'], aDict['value'])
         for key, value in aDict.items():
             setattr(option, key, value)
@@ -291,8 +299,23 @@ class ChoiceOption(Option):
     def setValueFromDialog(self, dialog):
         self.value = dialog.getNextChoice()
         
+          
+           
+class ImageChoiceOption(Option):
+
+
+    def __init__(self, key, value):
+        super(ImageChoiceOption, self).__init__(key, value)
+        self.type = 'image-choice'
+
+
+    def addToDialog(self, dialog):
+        imageTitles = list(WindowManager.getImageTitles())
+        images = ["None"] + imageTitles
+        if not self.value in imageTitles:
+            self.value = None
+        dialog.addChoice(self.label, images, self.value)
         
-    def getConvertedValue(self):
-        conversions = {"8-bit": 8, "12-bit": 12, "16-bit": 16, "32-bit": 32}
-        convertedValue = conversions[self.getValue()]
-        return convertedValue
+        
+    def setValueFromDialog(self, dialog):
+        self.value = dialog.getNextChoice()
