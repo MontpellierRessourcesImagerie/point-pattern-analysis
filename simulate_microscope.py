@@ -53,7 +53,6 @@ def main():
     IJ.log("Started acquiring image at " + str(datetime.datetime.fromtimestamp(startTime)))
     img = IJ.getImage()
     mic = Microscope(options=options)
-    print(type(mic.binning))
     mic.mountSample(img)
     mic.acquireImage()
     mic.image.show()

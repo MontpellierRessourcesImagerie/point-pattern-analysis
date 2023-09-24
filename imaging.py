@@ -61,7 +61,7 @@ class Microscope:
                           }
         if options:
             self.setOptions(options)
-    
+            
     
     def mountSample(self, aPhantomImage):
         self.sample = aPhantomImage
@@ -182,4 +182,4 @@ class Microscope:
                 
     def setOptions(self, options):
         for key, value in self.optionsMap.items():
-            setattr(self, key, options.value(value))
+            setattr(self, key, options.convertedValue(value))

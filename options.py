@@ -96,8 +96,12 @@ class Options(object):
     
     
     def value(self, key):
-        return self.get(key).value
+        return self.get(key).getValue()
         
+        
+    def convertedValue(self, key):
+        return self.get(key).getConvertedValue()
+    
     
     def setValue(self, key, value):
         self.get(key).value = value
@@ -143,6 +147,14 @@ class Option(object):
         return self.key
 
 
+    def getValue(self):
+        return self.value
+        
+        
+    def getConvertedValue(self):
+        return self.getValue()
+    
+    
     def setLabel(self, label):
         self.label = label
 
@@ -182,7 +194,9 @@ class Option(object):
         
     @classmethod    
     def fromDict(cls, aDict):
-        types = {'int': IntOption, 'float': FloatOption, 'string': StringOption, 'bool': BooleanOption}
+        types = {'int': IntOption, 'float': FloatOption, 
+                 'string': StringOption, 'bool': BooleanOption, 
+                 'choice': ChoiceOption}
         option = types[aDict['type']](aDict['key'], aDict['value'])
         for key, value in aDict.items():
             setattr(option, key, value)
@@ -260,3 +274,25 @@ class BooleanOption(Option):
         self.value = dialog.getNextBoolean()
 
 
+
+class ChoiceOption(Option):
+
+
+    def __init__(self, key, value):
+        super(ChoiceOption, self).__init__(key, value)
+        self.type = 'choice'
+        self.choices = []
+
+
+    def addToDialog(self, dialog):
+        dialog.addChoice(self.label, self.choices, self.value)
+        
+        
+    def setValueFromDialog(self, dialog):
+        self.value = dialog.getNextChoice()
+        
+        
+    def getConvertedValue(self):
+        conversions = {"8-bit": 8, "12-bit": 12, "16-bit": 16, "32-bit": 32}
+        convertedValue = conversions[self.getValue()]
+        return convertedValue
