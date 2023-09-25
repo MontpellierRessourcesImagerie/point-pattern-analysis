@@ -31,7 +31,7 @@ class Gaussian:
 
 class Microscope:
 
-    def __init__(self, options=None):
+    def __init__(self, options=None, map=None):
         self.sample = None
         self.image = None
         self.psfSigmaXY = 1
@@ -46,23 +46,12 @@ class Microscope:
         self.bitDepth = 16
         self.maxPhotonEmission = 10
         self.binning = 1                # 1 means no binning
-        self.optionsMap = {'psfSigmaXY': 'sigma_xy', 
-                           'psfSigmaZ': 'sigma_z', 
-                           'backgroundPhotons': 'background',
-                           'xyGradient': 'gradient_xy',
-                           'zGradientStdDev': 'gradient_z',
-                           'exposureTime': 'exposure',
-                           'readStdDev': 'read_noise',
-                           'detectorGain': 'gain',
-                           'detectorOffset': 'offset',
-                           'bitDepth': 'bit',
-                           'maxPhotonEmission': 'max._photon',
-                           'binning': 'binning'
-                          }
         if options:
+            if map:
+                options.setMapping(map, id(self))
             self.setOptions(options)
-            
-    
+                                  
+                                                    
     def mountSample(self, aPhantomImage):
         self.sample = aPhantomImage
         
@@ -181,5 +170,5 @@ class Microscope:
                 
                 
     def setOptions(self, options):
-        for key, value in self.optionsMap.items():
+        for key, value in options.getMapping(id(self)).items():
             setattr(self, key, options.convertedValue(value))

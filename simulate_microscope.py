@@ -39,8 +39,11 @@ import time
 import datetime
 from ij import IJ
 from ij import Prefs
+from ij.plugin import LutLoader
+from ij.process import LUT 
 from fr.cnrs.mri.cialib.imaging import Microscope
 from fr.cnrs.mri.cialib.options import Options
+
 
 SAVE_OPTIONS = True
 
@@ -52,9 +55,12 @@ def main():
     startTime = time.time()
     IJ.log("Started acquiring image at " + str(datetime.datetime.fromtimestamp(startTime)))
     img = IJ.getImage()
-    mic = Microscope(options=options)
+    mic = Microscope(options=options, map=getOptionsMap())
     mic.mountSample(img)
     mic.acquireImage()
+    lut = LUT(LutLoader.getLut( "Grays" ), 0, 255)
+    mic.image.getChannelProcessor().setLut(lut)
+    mic.image.resetDisplayRange()
     mic.image.show()
     endTime = time.time()
     IJ.log("Finished acquiring image at " + str(datetime.datetime.fromtimestamp(endTime)))
@@ -76,6 +82,23 @@ def getOptionsPath():
     pluginsPath = IJ.getDirectory("plugins")
     optionsPath = pluginsPath + "3D_Synthetic_Spots/simulate_microscope.json"
     return optionsPath
+   
+
+def getOptionsMap():
+    optionsMap = {'psfSigmaXY': 'sigma_xy', 
+                   'psfSigmaZ': 'sigma_z', 
+                   'backgroundPhotons': 'background',
+                   'xyGradient': 'gradient_xy',
+                   'zGradientStdDev': 'gradient_z',
+                   'exposureTime': 'exposure',
+                   'readStdDev': 'read_noise',
+                   'detectorGain': 'gain',
+                   'detectorOffset': 'offset',
+                   'bitDepth': 'bit',
+                   'maxPhotonEmission': 'max._photon',
+                   'binning': 'binning'
+                      }
+    return optionsMap
    
    
 main()

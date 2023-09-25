@@ -14,7 +14,7 @@ from inra.ijpb.measure.region3d import BoundingBox3D
 class SpotGenerator:
 
 
-    def __init__(self):
+    def __init__(self, options = None, map=None):
         self.width = 512
         self.height = 512
         self.depth = 64
@@ -31,8 +31,12 @@ class SpotGenerator:
         self.image = None
         self.groundTruthImage = None
         self.lutName = "glasbey on dark"
-        
-        
+        if options:
+            if map:
+                options.setMapping(map, id(self))
+            self.setOptions(options)
+            
+               
     def sampleUniformRandomPoints(self):
         if self.mask:
             self.sampleUniformRandomPointsInMask()
@@ -189,7 +193,7 @@ class SpotGenerator:
         
         
     def createGroundTruthImage(self):
-        lut = LUT(LutLoader.getLut( self.lutName ), 0, 255);
+        lut = LUT(LutLoader.getLut( self.lutName ), 0, 255)
         width, height, depth = self.width, self.height, self.depth
         if self.mask:
             width, height, _, depth, _ = self.mask.getDimensions()
@@ -255,3 +259,8 @@ class SpotGenerator:
         self.depth = 64
         self.calibration = Calibration()
         self.mask = None
+        
+        
+    def setOptions(self, options):
+        for key, value in options.getMapping(id(self)).items():
+            setattr(self, key, options.convertedValue(value))

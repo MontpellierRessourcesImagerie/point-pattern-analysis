@@ -1,5 +1,6 @@
 import os
 import json
+from ij import WindowManager
 from ij.gui import GenericDialog
 
 
@@ -16,8 +17,17 @@ class Options(object):
         self.dialog = None
         self.path = None
         self.autosave = True
+        self.mappings = {}
         
 
+    def setMapping(self, map, client):
+        self.mappings[client] = map
+    
+    
+    def getMapping(self, client):
+        return self.mappings[client]   
+    
+    
     def getTitle(self):
         return self.title
 
@@ -319,3 +329,5 @@ class ImageChoiceOption(Option):
         
     def setValueFromDialog(self, dialog):
         self.value = dialog.getNextChoice()
+        if self.value == "None":
+            self.value = None

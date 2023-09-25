@@ -1,0 +1,115 @@
+{
+    "helpUrl": "https://github.com/MontpellierRessourcesImagerie/point-pattern-analysis/wiki/3D_Synthetic_Spots", 
+    "title": "Sample Clustered Points Options", 
+    "elements": {
+        "z-size": {
+            "conversions": null, 
+            "helpText": "The voxel size in the z-dimension", 
+            "defaultValue": 5.0, 
+            "label": "Z-size of voxel: ", 
+            "type": "float", 
+            "value": 5.0, 
+            "key": "z-size", 
+            "order": 6
+        }, 
+        "type": {
+            "conversions": {
+                "32-bit": 32, 
+                "16-bit": 16, 
+                "8-bit": 8
+            }, 
+            "helpText": "The bit-depth of the image (8, 16 or 32 bit)", 
+            "defaultValue": 16, 
+            "label": "Type of Image: ", 
+            "type": "choice", 
+            "choices": [
+                "8-bit", 
+                "16-bit", 
+                "32-bit"
+            ], 
+            "value": "16-bit", 
+            "key": "type", 
+            "order": 4
+        }, 
+        "number": {
+            "conversions": null, 
+            "helpText": "The number of random points that will be sampled", 
+            "defaultValue": 1000, 
+            "label": "Number Of Samples: ", 
+            "type": "int", 
+            "value": 1000, 
+            "key": "number", 
+            "order": 8
+        }, 
+        "unit": {
+            "conversions": null, 
+            "helpText": "The unit of the voxel size", 
+            "defaultValue": "\u00b5m", 
+            "label": "Unit: ", 
+            "type": "string", 
+            "value": "\u00b5m", 
+            "key": "unit", 
+            "order": 7
+        }, 
+        "depth": {
+            "conversions": null, 
+            "helpText": "The number of z-slices of the image", 
+            "defaultValue": 64, 
+            "label": "Depth Of Image: ", 
+            "type": "int", 
+            "value": 64, 
+            "key": "depth", 
+            "order": 3
+        }, 
+        "width": {
+            "conversions": null, 
+            "helpText": "The width of the image", 
+            "defaultValue": 512, 
+            "label": "Width Of Image: ", 
+            "type": "int", 
+            "value": 512, 
+            "key": "width", 
+            "order": 1
+        }, 
+        "xy-size": {
+            "conversions": null, 
+            "helpText": "The voxel size in the xy-plane", 
+            "defaultValue": 64, 
+            "label": "XY-size of voxel: ", 
+            "type": "float", 
+            "value": 0.7, 
+            "key": "xy-size", 
+            "order": 5
+        }, 
+        "max.-dist.": {
+            "conversions": null, 
+            "helpText": "The maximal distance of a point from the closest grid-point", 
+            "defaultValue": 30.0, 
+            "label": "Max.-Dist. from grid: ", 
+            "type": "float", 
+            "value": 30.0, 
+            "key": "max.-dist.", 
+            "order": 9
+        }, 
+        "height": {
+            "conversions": null, 
+            "helpText": "The height of the image", 
+            "defaultValue": 512, 
+            "label": "Height Of Image: ", 
+            "type": "int", 
+            "value": 512, 
+            "key": "height", 
+            "order": 2
+        }, 
+        "mask": {
+            "conversions": null, 
+            "helpText": "The mask defining the region in which the points will be sampled", 
+            "defaultValue": null, 
+            "label": "Mask: ", 
+            "type": "image-choice", 
+            "value": null, 
+            "key": "mask", 
+            "order": 10
+        }
+    }
+}
