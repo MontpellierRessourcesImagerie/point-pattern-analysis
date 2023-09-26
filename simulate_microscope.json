@@ -8,7 +8,7 @@
             "defaultValue": 1.0, 
             "label": "read_noise stddev", 
             "type": "float", 
-            "value": 1.0, 
+            "value": 25.0, 
             "key": "read_noise", 
             "order": 7
         }, 
@@ -99,7 +99,7 @@
             "defaultValue": 1.3, 
             "label": "sigma_z of psf", 
             "type": "float", 
-            "value": 1.3, 
+            "value": 6.0, 
             "key": "sigma_z", 
             "order": 2
         }, 
@@ -119,7 +119,7 @@
             "defaultValue": 1.0, 
             "label": "sigma_xy of psf", 
             "type": "float", 
-            "value": 1.0, 
+            "value": 5.0, 
             "key": "sigma_xy", 
             "order": 1
         }, 

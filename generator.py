@@ -191,23 +191,28 @@ class SpotGenerator:
                             points.append((x, y, z))
         return points
         
-        
-    def createGroundTruthImage(self):
-        lut = LUT(LutLoader.getLut( self.lutName ), 0, 255)
+    
+    def getEmptyImage(self):
         width, height, depth = self.width, self.height, self.depth
         if self.mask:
             width, height, _, depth, _ = self.mask.getDimensions()
-        self.groundTruthImage = NewImage.createImage("Ground Truth Labels", 
+        image = NewImage.createImage("Ground Truth Labels", 
                                                      width, 
                                                      height, 
                                                      depth, 
                                                      self.bitDepth, NewImage.FILL_BLACK)
+        image.setCalibration(self.calibration)
+        return image
+        
+    
+    def createGroundTruthImage(self):
+        lut = LUT(LutLoader.getLut( self.lutName ), 0, 255)
+        self.groundTruthImage = self.getEmptyImage()
         label = 1
         stack = self.groundTruthImage.getStack()
         for point in self.points:
             stack.setVoxel(point[0], point[1], point[2], label)
             label = label + 1
-        self.groundTruthImage.setCalibration(self.calibration)
         self.groundTruthImage.getChannelProcessor().setLut(lut)
         self.groundTruthImage.resetDisplayRange()
         
