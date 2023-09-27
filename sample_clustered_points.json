@@ -19,7 +19,7 @@
                 "8-bit": 8
             }, 
             "helpText": "The bit-depth of the image (8, 16 or 32 bit)", 
-            "defaultValue": 16, 
+            "defaultValue": "16-bit", 
             "label": "Type of Image: ", 
             "type": "choice", 
             "choices": [
@@ -44,10 +44,10 @@
         "unit": {
             "conversions": null, 
             "helpText": "The unit of the voxel size", 
-            "defaultValue": "\u00b5m", 
+            "defaultValue": "micron", 
             "label": "Unit: ", 
             "type": "string", 
-            "value": "\u00b5m", 
+            "value": "micron", 
             "key": "unit", 
             "order": 7
         }, 
@@ -77,7 +77,7 @@
             "defaultValue": 64, 
             "label": "XY-size of voxel: ", 
             "type": "float", 
-            "value": 0.7, 
+            "value": 64.0, 
             "key": "xy-size", 
             "order": 5
         }, 

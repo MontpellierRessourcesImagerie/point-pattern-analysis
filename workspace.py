@@ -54,6 +54,7 @@ for i in range(ROUNDS_OF_SALT_AND_PEPPER):
 IJ.run(image, "Remove Outliers...", "radius=2 threshold=50 which=Bright stack");
 stack = Reconstruction3D.fillHoles(image.getStack())
 erosion = Erosion(DiskStrel.fromRadius(EROSION_RADIUS))
-stack = erosion.process(stack)
+for i in range(EROSION_RADIUS):
+    stack = erosion.process(stack)
 image.setStack(stack)
 image.show()
