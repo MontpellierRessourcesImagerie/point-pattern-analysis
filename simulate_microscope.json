@@ -50,7 +50,7 @@
                 "8-bit": 8
             }, 
             "helpText": "The bit-depth of the camera, usually (8, 12 or 16 bit)", 
-            "defaultValue": 16, 
+            "defaultValue": "16-bit", 
             "label": "bit depth", 
             "type": "choice", 
             "choices": [

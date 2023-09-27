@@ -49,13 +49,14 @@ SAVE_OPTIONS = True
 
 
 def main():
+    mic = Microscope()
     options = getOptions()
     if not options:
         return
+    options.transferTo(mic, getOptionsMap())
     startTime = time.time()
     IJ.log("Started acquiring image at " + str(datetime.datetime.fromtimestamp(startTime)))
     img = IJ.getImage()
-    mic = Microscope(options=options, map=getOptionsMap())
     mic.mountSample(img)
     mic.acquireImage()
     lut = LUT(LutLoader.getLut( "Grays" ), 0, 255)
@@ -64,7 +65,7 @@ def main():
     mic.image.show()
     endTime = time.time()
     IJ.log("Finished acquiring image at " + str(datetime.datetime.fromtimestamp(endTime)))
-    IJ.log("Duration of calculation: " + str(datetime.timedelta(seconds=endTime-startTime)))
+    IJ.log("Duration of calculation: " + str(datetime.timedelta(seconds = endTime - startTime)))
     
   
 def getOptions():

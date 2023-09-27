@@ -19,7 +19,7 @@
                 "8-bit": 8
             }, 
             "helpText": "The bit-depth of the image (8, 16 or 32 bit)", 
-            "defaultValue": 16, 
+            "defaultValue": "16-bit", 
             "label": "Type of Image: ", 
             "type": "choice", 
             "choices": [

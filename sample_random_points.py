@@ -45,10 +45,11 @@ SAVE_OPTIONS = True
 
 
 def main():
+    gen = SpotGenerator()
     options = getOptions()
     if not options:
         return
-    gen = SpotGenerator(options=options, map=getOptionsMap())
+    options.transferTo(gen, getOptionsMap())
     gen.sampleUniformRandomPoints()
     gen.createGroundTruthImage()
     gen.groundTruthImage.show()

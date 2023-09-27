@@ -48,12 +48,13 @@ SAVE_OPTIONS = True
 
 
 def main():
+    gen = SpotGenerator()
     options = getOptions()
     if not options:
         return
+    options.transferTo(gen, getOptionsMap())
     startTime = time.time()
     IJ.log("Started sampling at " + str(datetime.datetime.fromtimestamp(startTime)))
-    gen = SpotGenerator(options=options, map=getOptionsMap())
     gen.sampleClusteredPoints()
     gen.createGroundTruthImage()
     gen.groundTruthImage.show()

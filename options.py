@@ -19,17 +19,8 @@ class Options(ActionListener):
         self.dialog = None
         self.path = None
         self.autosave = True
-        self.mappings = {}
         self.wasCanceled = False
-        
-
-    def setMapping(self, map, client):
-        self.mappings[client] = map
-    
-    
-    def getMapping(self, client):
-        return self.mappings[client]   
-    
+            
     
     def getTitle(self):
         return self.title
@@ -151,7 +142,12 @@ class Options(ActionListener):
         for option in self.sortedList():
             option.updateDialog()
      
-
+    
+    def transferTo(self, client, aMapping):
+        for key, value in aMapping.items():
+            setattr(client, key, self.convertedValue(value))
+        
+    
     @classmethod
     def fromDict(cls, aDict):
         options = Options(aDict['title'])

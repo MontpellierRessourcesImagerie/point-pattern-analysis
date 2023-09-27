@@ -4,9 +4,8 @@ from ij.process import ImageConverter
 from ij.plugin import Duplicator
 from ij.plugin import GaussianBlur3D
 from ij.plugin import Binner
-from imagescience.random import Randomizer
-from imagescience.image import Image
-from fr.cnrs.mri.cialib.options import Options
+from imagescience.random import Randomizer  # For photon noise
+from imagescience.image import Image        # Needed by Randomizer
 
 # Inspired by https://petebankhead.gitbooks.io/imagej-intro/content/chapters/macro_simulating/macro_simulating.html?q=
 
@@ -31,7 +30,7 @@ class Gaussian:
 
 class Microscope:
 
-    def __init__(self, options=None, map=None):
+    def __init__(self):
         self.sample = None
         self.image = None
         self.psfSigmaXY = 1
@@ -46,10 +45,6 @@ class Microscope:
         self.bitDepth = 16
         self.maxPhotonEmission = 10
         self.binning = 1                # 1 means no binning
-        if options:
-            if map:
-                options.setMapping(map, id(self))
-            self.setOptions(options)
                                   
                                                     
     def mountSample(self, aPhantomImage):
@@ -167,8 +162,4 @@ class Microscope:
             for p in range(len(pixels)):
                 pixels[p] = round(pixels[p])
             stack.setPixels(pixels, i)
-                
-                
-    def setOptions(self, options):
-        for key, value in options.getMapping(id(self)).items():
-            setattr(self, key, options.convertedValue(value))
+            
