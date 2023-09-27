@@ -2,6 +2,7 @@ import os
 import json
 from java.awt.event import ActionListener
 from java.awt.event import ActionEvent;
+from ij import IJ
 from ij import WindowManager
 from ij.gui import GenericDialog
 
@@ -148,6 +149,46 @@ class Options(ActionListener):
             setattr(client, key, self.convertedValue(value))
         
     
+    def getOptionsRepr(self):
+        optionsString = ""
+        options = self.sortedList()
+        for option in options:
+            optionsString = optionsString + option.key + "=" + str(option.value)
+            if not option == options[-1]:
+                optionsString = optionsString + ", "
+        return optionsString
+        
+    
+    def getOptionsStr(self):
+        optionsString = ""
+        options = self.sortedList()
+        for option in options:
+            optionsString = optionsString + option.label + ": " + str(option.value) + "\n"
+        return optionsString
+    
+    
+    def recordAndReport(self, command, img):
+        IJ.log(self.getOptionsStr())
+        macro = img.getProp("mri-cia.macro")
+        if not macro:
+            macro = ""
+        else:
+            macro = macro + "\n"
+        command = 'run("' + command + '", "' + self.getOptionsRepr() + '");'        
+        macro = macro + command
+        img.setProp("mri-cia.macro", macro)
+            
+    
+    def __str__(self):
+        return self.__repr__()
+    
+    
+    def __repr__(self):
+        reprString = u"" + self.__class__.__name__ + "(" + self.getOptionsRepr() + ")"
+        reprString = reprString.encode('ascii',errors='ignore')
+        return reprString
+        
+        
     @classmethod
     def fromDict(cls, aDict):
         options = Options(aDict['title'])

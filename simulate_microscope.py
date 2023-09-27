@@ -57,6 +57,7 @@ def main():
     startTime = time.time()
     IJ.log("Started acquiring image at " + str(datetime.datetime.fromtimestamp(startTime)))
     img = IJ.getImage()
+    options.recordAndReport("simulate microscope", img)
     mic.mountSample(img)
     mic.acquireImage()
     lut = LUT(LutLoader.getLut( "Grays" ), 0, 255)
