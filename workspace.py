@@ -1,5 +1,7 @@
 import random
 from ij import IJ
+from ij.plugin import ImageCalculator
+from ij.process import ImageConverter
 from mcib3d.geom import ObjectCreator3D
 from mcib3d.geom import Vector3D
 from inra.ijpb.morphology import Reconstruction3D
@@ -21,7 +23,6 @@ EROSION_RADIUS = 1
 meanX = [random.normalvariate(MEAN_RADIUS_X, STDDEV_RADIUS_X) for i in range(NUMBER_OF_SAMPLES)]
 meanY = [random.normalvariate(MEAN_RADIUS_Y, STDDEV_RADIUS_Y) for i in range(NUMBER_OF_SAMPLES)]
 meanZ = [random.normalvariate(MEAN_RADIUS_Z, STDDEV_RADIUS_Z) for i in range(NUMBER_OF_SAMPLES)]
-
 
 gen = SpotGenerator()
 gen.setScale(0.2, 0.2, 0.7, "micron")
@@ -47,6 +48,7 @@ for label, point in enumerate(gen.points, start = 1):
                                                                         label, 
                                                                         v1[label-1], 
                                                                         v1[label-1].getRandomPerpendicularVector(), False)
+labelImage = image.duplicate()                                                                        
 IJ.setRawThreshold(image, 1, pow(2, gen.bitDepth) - 1)
 IJ.run(image, "Convert to Mask", "background=Dark black")                                                  
 for i in range(ROUNDS_OF_SALT_AND_PEPPER):
@@ -57,4 +59,7 @@ erosion = Erosion(DiskStrel.fromRadius(EROSION_RADIUS))
 for i in range(EROSION_RADIUS):
     stack = erosion.process(stack)
 image.setStack(stack)
-image.show()
+converter = ImageConverter(image)
+converter.convertToGray16()
+ImageCalculator.run(labelImage, image, "AND stack")
+labelImage.show()

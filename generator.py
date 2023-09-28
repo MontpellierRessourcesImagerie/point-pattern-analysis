@@ -6,9 +6,16 @@ from ij.gui import NewImage
 from ij.measure import Calibration
 from ij.measure import ResultsTable
 from ij.plugin import LutLoader
+from ij.plugin import ImageCalculator
 from ij.process import LUT 
+from ij.process import ImageConverter
 from inra.ijpb.label.edit import FindAllLabels
 from inra.ijpb.measure.region3d import BoundingBox3D
+from inra.ijpb.morphology import Reconstruction3D
+from inra.ijpb.morphology.filter import Erosion
+from inra.ijpb.morphology.strel import DiskStrel
+from mcib3d.geom import Vector3D
+from mcib3d.geom import ObjectCreator3D
 
 
 class SpotGenerator:
@@ -266,4 +273,193 @@ class NucleiGenerator:
 
 
     def __init__(self):
-        pass
+        self.spotGenerator = SpotGenerator()
+        self.spotGenerator.setScale(0.2, 0.2, 0.7, "micron")
+        self.spotGenerator.width = 1024
+        self.spotGenerator.height = 1024
+        self.spotGenerator.depth = 128
+        self.spotGenerator.numberOfSamples = 500
+        self.xRadiusMean = 4         
+        self.xRadiusStddev = 1
+        self.yRadiusMean = 4         
+        self.yRadiusStddev = 1
+        self.zRadiusMean = 4         
+        self.zRadiusStddev = 1
+        self.saltAndPepper = 1
+        self.erosionRadius = 1
+        self.nuclei = []
+        self.groundTruthImage = None
+        
+        
+    def sampleUniformRandom(self):
+        self.spotGenerator.sampleUniformRandomPoints()
+        radii = self.sampleRadii()
+        orientations = self.sampleOrientations()
+        self.nuclei = []
+        for position, radius, orientation in zip(self.spotGenerator.points, radii, orientations):
+            nucleus = Nucleus(self.spotGenerator.getCalibration())
+            nucleus.setRawPosition(position[0], position[1], position[2])
+            nucleus.setRadius(radius[0], radius[1], radius[2])
+            nucleus.orientation = orientation
+            self.nuclei.append(nucleus)
+            
+    
+    def sampleRadii(self):
+        radiusX = [random.normalvariate(self.xRadiusMean, self.xRadiusStddev) for i in range(self.numberOfSamples())]
+        radiusY = [random.normalvariate(self.yRadiusMean, self.yRadiusStddev) for i in range(self.numberOfSamples())]
+        radiusZ = [random.normalvariate(self.zRadiusMean, self.zRadiusStddev) for i in range(self.numberOfSamples())]
+        radii =  zip(radiusX, radiusY, radiusZ)    
+        return radii
+        
+      
+    def sampleOrientations(self):
+        rx = [random.random() for _ in range(self.numberOfSamples())]
+        ry = [random.random() for _ in range(self.numberOfSamples())]
+        orientationVectors = [Vector3D(rx[i], ry[i], 0).getNormalizedVector() for i in range(self.numberOfSamples())]   
+        return orientationVectors
+
+
+    def numberOfSamples(self):
+        return self.spotGenerator.numberOfSamples
+
+
+    def createGroundTruthImage(self):
+        lut = LUT(LutLoader.getLut( self.spotGenerator.lutName ), 0, 255)
+        self.groundTruthImage = self.spotGenerator.getEmptyImage()
+        label = 1
+        objectCreator = ObjectCreator3D(self.groundTruthImage.getStack())
+        objectCreator.setCalibration(self.spotGenerator.getCalibration())
+        for nucleus in self.nuclei:
+            nucleus.draw(objectCreator, label)
+            label = label + 1
+        labelImage = self.groundTruthImage.duplicate()  
+        IJ.setRawThreshold(self.groundTruthImage, 1, pow(2, self.spotGenerator.bitDepth) - 1)
+        IJ.run(self.groundTruthImage, "Convert to Mask", "background=Dark black")                                                  
+        for i in range(self.saltAndPepper):
+            IJ.run(self.groundTruthImage, "Salt and Pepper", "stack")
+        IJ.run(self.groundTruthImage, "Remove Outliers...", "radius=2 threshold=50 which=Bright stack");
+        stack = Reconstruction3D.fillHoles(self.groundTruthImage.getStack())
+        erosion = Erosion(DiskStrel.fromRadius(self.erosionRadius))
+        stack = erosion.process(stack)   
+        self.groundTruthImage.setStack(stack)
+        converter = ImageConverter(self.groundTruthImage)
+        if self.spotGenerator.bitDepth in [12, 16]:
+            converter.convertToGray16()
+        if self.spotGenerator.bitDepth == 8:
+            converter.convertToGray8()
+        if self.spotGenerator.bitDepth == 32:
+            converter.convertToGray32()
+        ImageCalculator.run(labelImage, self.groundTruthImage, "AND stack")
+        self.groundTruthImage = labelImage
+        self.groundTruthImage.getChannelProcessor().setLut(lut)
+        self.groundTruthImage.resetDisplayRange()
+        
+            
+    def getGroundTruthTable(self):
+        table = ResultsTable()
+        nuclei = self.nuclei
+        if self.spotGenerator.calibration.scaled():
+            points = self.getScaledPoints()
+        for label, point in enumerate(points, start=1):
+            table.addRow()
+            table.addValue("X", point[0])
+            table.addValue("Y", point[1])
+            table.addValue("Z", point[2])
+            table.addValue("Label", label)
+        return table     
+
+
+class Nucleus:
+
+    
+    def __init__(self, calibration):        
+        self.position = None
+        self.radius = None
+        self.rawPosition = None
+        self.rawRadius = None
+        self.orientation = None
+        self.calibration = calibration
+        
+        
+    def setPosition(self, x, y, z):
+        self.position = x, y, z
+        self.rawPosition = self.calibration.getRawX(x), self.calibration.getRawY(y), self.calibration.getRawZ(z)
+        
+   
+    def setRawPosition(self, x, y, z):
+        self.rawPosition = x, y, z
+        self.position = self.calibration.getX(x), self.calibration.getY(y), self.calibration.getZ(z)
+    
+    
+    def getPosition(self):
+        return self.position
+        
+        
+    def getRawPosition(self):
+        return self.rawPosition
+        
+        
+    def setRadius(self, xr, yr, zr):
+        self.radius = xr, yr, zr
+        self.rawRadius = self.calibration.getRawX(xr), self.calibration.getRawY(yr), self.calibration.getRawZ(zr)
+        
+        
+    def getRadius(self):
+        return self.radius
+       
+       
+    def getRawRadius(self):
+        return self.rawRadius
+    
+    
+    def getOrientation(self):
+        return self.orientation
+    
+    
+    def getX(self):
+        return self.position[0]
+        
+        
+    def getY(self):
+        return self.position[1]
+
+
+    def getZ(self):
+        return self.position[2]
+        
+        
+    def getRadiusX(self):
+        return self.radius[0]
+        
+    
+    def getRadiusY(self):
+        return self.radius[1]
+        
+        
+    def getRadiusZ(self):
+        return self.radius[2]
+        
+        
+    def draw(self, objectCreator, label):
+        objectCreator.createEllipsoidAxesUnit(self.position[0],
+                                              self.position[1],
+                                              self.position[2],
+                                              self.radius[0],
+                                              self.radius[1], 
+                                              self.radius[2],
+                                              label, 
+                                              self.orientation, 
+                                              self.orientation.getRandomPerpendicularVector(), 
+                                              False)
+    
+    
+    def __str__(self):
+        return self.__repr__()
+    
+    
+    def __repr__(self):
+        roundedRadius = (round(self.radius[0], 2), round(self.radius[1], 2), round(self.radius[2], 2))
+        reprString = u"" + self.__class__.__name__ + "(p=" + str(self.position) + ", r="+str(roundedRadius)+", o="+str(self.orientation) +")"
+        reprString = reprString.encode('ascii',errors='ignore')
+        return reprString
+        
