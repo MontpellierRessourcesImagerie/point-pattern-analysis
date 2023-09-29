@@ -2,6 +2,7 @@ from fr.cnrs.mri.cialib.generator import NucleiGenerator
 
 gen = NucleiGenerator()
 
-gen.sampleUniformRandom()
+gen.spotGenerator.numberOfSamples = 300
+gen.sampleClusteredNuclei()
 gen.createGroundTruthImage()
 gen.groundTruthImage.show()

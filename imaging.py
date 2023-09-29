@@ -1,5 +1,6 @@
 from __future__ import division
 import math
+from ij import IJ
 from ij.process import ImageConverter
 from ij.plugin import Duplicator
 from ij.plugin import GaussianBlur3D
@@ -52,6 +53,7 @@ class Microscope:
         
     
     def acquireImage(self):
+        IJ.log("acquiring image...")
         self.image = Duplicator().run(self.sample)
         ImageConverter(self.image).convertToGray32()
         self.normalizeImage()
@@ -70,6 +72,7 @@ class Microscope:
         
    
     def normalizeImage(self):
+        IJ.log("normalizing image...")
         stack = self.image.getStack()
         minValue, maxValue = self.getStackMinAndMax(self.image)
         for i in range(1, stack.size()+1):
@@ -95,6 +98,7 @@ class Microscope:
     def addBackground(self):
         '''Background can be constant, contain a gradient in x,y and a grandient in z'''
         
+        IJ.log("adding background...")
         stack = self.image.getStack()
                
         for i in range(1, stack.size()+1):
@@ -112,46 +116,54 @@ class Microscope:
                 
                 
     def addPhotonNoise(self):
+        IJ.log("adding photon noise...")
         image = Image.wrap(self.image)
         randomizer = Randomizer()
-        randomizer.poisson(image, 1, 2, False)  # Mean param unused, intensity is the mean
+        randomizer.poisson(image, 1, 2, False)  # Mean param unused, intensity is the mean, poisson noise ~ sqrt(I)
         self.image.updateAndDraw()
 
 
     def convolveWithPSF(self):
+        IJ.log("convolving...")
         GaussianBlur3D.blur(self.image, self.psfSigmaXY, self.psfSigmaXY, self.psfSigmaZ)
         
         
     def multiplyExposureTime(self):
+         IJ.log("applying exposure time...")
          stack = self.image.getStack()
          for i in range(1, stack.size()+1):
             stack.getProcessor(i).multiply(self.exposureTime)
             
             
     def applyDetectorGain(self):
+        IJ.log("applying detector gain...")
         stack = self.image.getStack()
         for i in range(1, stack.size()+1):
             stack.getProcessor(i).multiply(self.detectorGain) # (note this should really add Poisson noise too!)            
             
       
     def applyDetectorOffset(self):
+        IJ.log("applying detector offset...")
         stack = self.image.getStack()
         for i in range(1, stack.size()+1):          
             stack.getProcessor(i).add(self.detectorOffset)
             
             
     def applyBinning(self):
+        IJ.log("applying binning...")
         binner = Binner()
         self.image = binner.shrink(self.image, self.binning, self.binning, 1, Binner.SUM)
        
             
     def addReadoutNoise(self):
+        IJ.log("adding read-out noise...")
         stack = self.image.getStack()
         for i in range(1, stack.size()+1):          
             stack.getProcessor(i).noise(self.readStdDev)
             
-            
+             
     def clipAndRound(self):
+        IJ.log("clipping and rounding...")       
         stack = self.image.getStack()
         maxVal = pow(2, self.bitDepth) - 1
         for i in range(1, stack.size()+1):

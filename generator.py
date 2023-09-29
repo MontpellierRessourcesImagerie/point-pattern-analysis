@@ -293,6 +293,20 @@ class NucleiGenerator:
         
     def sampleUniformRandom(self):
         self.spotGenerator.sampleUniformRandomPoints()
+        self.sample()
+        
+        
+    def sampleDispersedNuclei(self):
+        self.spotGenerator.sampleDispersedPoints()
+        self.sample()
+    
+    
+    def sampleClusteredNuclei(self):
+        self.spotGenerator.sampleClusteredPoints()
+        self.sample()
+        
+           
+    def sample(self):
         radii = self.sampleRadii()
         orientations = self.sampleOrientations()
         self.nuclei = []
@@ -323,18 +337,19 @@ class NucleiGenerator:
         return self.spotGenerator.numberOfSamples
 
 
-    def createGroundTruthImage(self):
-        lut = LUT(LutLoader.getLut( self.spotGenerator.lutName ), 0, 255)
-        self.groundTruthImage = self.spotGenerator.getEmptyImage()
+    def createEllipsoidPhantoms(self):
         label = 1
         objectCreator = ObjectCreator3D(self.groundTruthImage.getStack())
         objectCreator.setCalibration(self.spotGenerator.getCalibration())
         for nucleus in self.nuclei:
             nucleus.draw(objectCreator, label)
             label = label + 1
-        labelImage = self.groundTruthImage.duplicate()  
+            
+            
+    def addNuclearPores(self):
+        labelImage = self.groundTruthImage.duplicate()        
         IJ.setRawThreshold(self.groundTruthImage, 1, pow(2, self.spotGenerator.bitDepth) - 1)
-        IJ.run(self.groundTruthImage, "Convert to Mask", "background=Dark black")                                                  
+        IJ.run(self.groundTruthImage, "Convert to Mask", "background=Dark black")
         for i in range(self.saltAndPepper):
             IJ.run(self.groundTruthImage, "Salt and Pepper", "stack")
         IJ.run(self.groundTruthImage, "Remove Outliers...", "radius=2 threshold=50 which=Bright stack");
@@ -342,6 +357,12 @@ class NucleiGenerator:
         erosion = Erosion(DiskStrel.fromRadius(self.erosionRadius))
         stack = erosion.process(stack)   
         self.groundTruthImage.setStack(stack)
+        IJ.run(self.groundTruthImage, "Divide...", "value=255.000 stack")
+        self.__convertBackToBitDepth()
+        ImageCalculator.run(self.groundTruthImage, labelImage, "Multiply stack")
+
+
+    def __convertBackToBitDepth(self):
         converter = ImageConverter(self.groundTruthImage)
         if self.spotGenerator.bitDepth in [12, 16]:
             converter.convertToGray16()
@@ -349,8 +370,13 @@ class NucleiGenerator:
             converter.convertToGray8()
         if self.spotGenerator.bitDepth == 32:
             converter.convertToGray32()
-        ImageCalculator.run(labelImage, self.groundTruthImage, "AND stack")
-        self.groundTruthImage = labelImage
+    
+    
+    def createGroundTruthImage(self):
+        lut = LUT(LutLoader.getLut( self.spotGenerator.lutName ), 0, 255)
+        self.groundTruthImage = self.spotGenerator.getEmptyImage()
+        self.createEllipsoidPhantoms()
+        self.addNuclearPores()
         self.groundTruthImage.getChannelProcessor().setLut(lut)
         self.groundTruthImage.resetDisplayRange()
         
