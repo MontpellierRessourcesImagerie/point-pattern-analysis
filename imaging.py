@@ -8,8 +8,8 @@ from ij.plugin import Binner
 from imagescience.random import Randomizer  # For photon noise
 from imagescience.image import Image        # Needed by Randomizer
 
-# Inspired by https://petebankhead.gitbooks.io/imagej-intro/content/chapters/macro_simulating/macro_simulating.html?q=
 
+# Inspired by https://petebankhead.gitbooks.io/imagej-intro/content/chapters/macro_simulating/macro_simulating.html?q=
 
 
 class Gaussian:

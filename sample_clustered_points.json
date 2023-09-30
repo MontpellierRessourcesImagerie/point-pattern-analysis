@@ -89,7 +89,7 @@
             "type": "float", 
             "value": 90.0, 
             "key": "max.-dist.", 
-            "order": 10
+            "order": 13
         }, 
         "clusters": {
             "conversions": null, 
@@ -99,7 +99,7 @@
             "type": "int", 
             "value": 50, 
             "key": "clusters", 
-            "order": 9
+            "order": 12
         }, 
         "height": {
             "conversions": null, 

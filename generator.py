@@ -1,3 +1,38 @@
+###############################################################################################
+##
+## generator.py
+##
+## Create synthetic 3D spots and nuclei with random uniform, clustered or dispersed spatial distribution. 
+## 
+## (c) 2023 INSERM
+##
+## written by Volker Baecker at the MRI-Center for Image Analysis (MRI-CIA - https://www.mri.cnrs.fr/en/data-analysis.html)
+##
+## generator.py is free software under the MIT license.
+## 
+## MIT License
+##
+## Copyright (c) 2023 INSERM
+##
+## Permission is hereby granted, free of charge, to any person obtaining a copy
+## of this software and associated documentation files (the "Software"), to deal
+## in the Software without restriction, including without limitation the rights
+## to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+## copies of the Software, and to permit persons to whom the Software is
+## furnished to do so, subject to the following conditions:
+##
+## The above copyright notice and this permission notice shall be included in all
+## copies or substantial portions of the Software.
+##
+## THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+## IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+## FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+## AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+## LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+## OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+## SOFTWARE.
+## 
+################################################################################################
 from __future__ import division
 import random
 import math
@@ -291,7 +326,7 @@ class NucleiGenerator:
         self.groundTruthImage = None
         
         
-    def sampleUniformRandom(self):
+    def sampleUniformRandomNuclei(self):
         self.spotGenerator.sampleUniformRandomPoints()
         self.sample()
         
@@ -386,6 +421,7 @@ class NucleiGenerator:
         for label, nucleus in  enumerate(self.nuclei, start = 1):
             nucleus.addToTable(table, label)
         return table     
+
 
 
 class Nucleus:

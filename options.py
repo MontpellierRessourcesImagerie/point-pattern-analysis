@@ -1,5 +1,6 @@
 import os
 import json
+import functools
 from java.awt.event import ActionListener
 from java.awt.event import ActionEvent;
 from ij import IJ
@@ -7,6 +8,20 @@ from ij import WindowManager
 from ij.gui import GenericDialog
 
 
+def rgetattr(obj, attr, *args):
+    '''recursive version of getattr, written by https://stackoverflow.com/users/190597/unutbu (Thanks!)
+    '''
+    def _getattr(obj, attr):
+        return getattr(obj, attr, *args)
+    return functools.reduce(_getattr, [obj] + attr.split('.'))
+    
+    
+def rsetattr(obj, attr, val):
+    '''recursive version of setattr, written by https://stackoverflow.com/users/190597/unutbu (Thanks!)
+    '''
+    pre, _, post = attr.rpartition('.')
+    return setattr(rgetattr(obj, pre) if pre else obj, post, val)
+   
 
 class Options(ActionListener):
 
@@ -120,7 +135,7 @@ class Options(ActionListener):
        
     def actionPerformed(self, e):
         command = e.getActionCommand()
-        if not command in ["Reset", "MakeDefault"]:
+        if not command in ["Reset", "Make Default"]:
             return
         if command == "Reset":
             self.resetToDefault()
@@ -146,7 +161,7 @@ class Options(ActionListener):
     
     def transferTo(self, client, aMapping):
         for key, value in aMapping.items():
-            setattr(client, key, self.convertedValue(value))
+            rsetattr(client, key, self.convertedValue(value))
         
     
     def getOptionsRepr(self):

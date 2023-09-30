@@ -1,0 +1,195 @@
+{
+    "helpUrl": "https://github.com/MontpellierRessourcesImagerie/point-pattern-analysis/wiki/3D_Synthetic_Spots", 
+    "title": "Sample Random Nuclei Options", 
+    "elements": {
+        "sdtDev_x_radius": {
+            "conversions": null, 
+            "helpText": "The stdDev. of the radius along the x-axis of the nuclei", 
+            "defaultValue": 1.0, 
+            "label": "StdDev. x-radius: ", 
+            "type": "float", 
+            "value": 1.0, 
+            "key": "sdtDev_x_radius", 
+            "order": 13
+        }, 
+        "z-size": {
+            "conversions": null, 
+            "helpText": "The voxel size in the z-dimension", 
+            "defaultValue": 0.7, 
+            "label": "Z-size of voxel: ", 
+            "type": "float", 
+            "value": 0.7, 
+            "key": "z-size", 
+            "order": 6
+        }, 
+        "type": {
+            "conversions": {
+                "32-bit": 32, 
+                "16-bit": 16, 
+                "8-bit": 8
+            }, 
+            "helpText": "The bit-depth of the image (8, 16 or 32 bit)", 
+            "defaultValue": "16-bit", 
+            "label": "Type of Image: ", 
+            "type": "choice", 
+            "choices": [
+                "8-bit", 
+                "16-bit", 
+                "32-bit"
+            ], 
+            "value": "16-bit", 
+            "key": "type", 
+            "order": 4
+        }, 
+        "sdtDev_y_radius": {
+            "conversions": null, 
+            "helpText": "The stdDev. of the radius along the y-axis of the nuclei", 
+            "defaultValue": 1.0, 
+            "label": "StdDev. y-radius: ", 
+            "type": "float", 
+            "value": 1.0, 
+            "key": "sdtDev_y_radius", 
+            "order": 16
+        }, 
+        "sdtDev_z_radius": {
+            "conversions": null, 
+            "helpText": "The stdDev. of the radius along the z-axis of the nuclei", 
+            "defaultValue": 1.0, 
+            "label": "StdDev. z-radius: ", 
+            "type": "float", 
+            "value": 1.0, 
+            "key": "sdtDev_z_radius", 
+            "order": 19
+        }, 
+        "number": {
+            "conversions": null, 
+            "helpText": "The number of random points that will be sampled", 
+            "defaultValue": 300, 
+            "label": "Number Of Samples: ", 
+            "type": "int", 
+            "value": 300, 
+            "key": "number", 
+            "order": 8
+        }, 
+        "unit": {
+            "conversions": null, 
+            "helpText": "The unit of the voxel size", 
+            "defaultValue": "microns", 
+            "label": "Unit: ", 
+            "type": "string", 
+            "value": "microns", 
+            "key": "unit", 
+            "order": 7
+        }, 
+        "depth": {
+            "conversions": null, 
+            "helpText": "The number of z-slices of the image", 
+            "defaultValue": 128, 
+            "label": "Depth Of Image: ", 
+            "type": "int", 
+            "value": 128, 
+            "key": "depth", 
+            "order": 3
+        }, 
+        "mean_x_radius": {
+            "conversions": null, 
+            "helpText": "The mean radius along the x-axis of the nuclei", 
+            "defaultValue": 4.0, 
+            "label": "Mean x-radius: ", 
+            "type": "float", 
+            "value": 4.0, 
+            "key": "mean_x_radius", 
+            "order": 12
+        }, 
+        "width": {
+            "conversions": null, 
+            "helpText": "The width of the image", 
+            "defaultValue": 1024, 
+            "label": "Width Of Image: ", 
+            "type": "int", 
+            "value": 1024, 
+            "key": "width", 
+            "order": 1
+        }, 
+        "mean_z_radius": {
+            "conversions": null, 
+            "helpText": "The mean radius along the z-axis of the nuclei", 
+            "defaultValue": 4.0, 
+            "label": "Mean z-radius: ", 
+            "type": "float", 
+            "value": 4.0, 
+            "key": "mean_z_radius", 
+            "order": 16
+        }, 
+        "erosion": {
+            "conversions": null, 
+            "helpText": "The radius of the structuring element for the erosion used to simulated nuclear pores", 
+            "defaultValue": 1, 
+            "label": "erosion: ", 
+            "type": "int", 
+            "value": 1, 
+            "key": "erosion", 
+            "order": 21
+        }, 
+        "mean_y_radius": {
+            "conversions": null, 
+            "helpText": "The mean radius along the y-axis of the nuclei", 
+            "defaultValue": 4.0, 
+            "label": "Mean y-radius: ", 
+            "type": "float", 
+            "value": 4.0, 
+            "key": "mean_y_radius", 
+            "order": 14
+        }, 
+        "xy-size": {
+            "conversions": null, 
+            "helpText": "The voxel size in the xy-plane", 
+            "defaultValue": 0.2, 
+            "label": "XY-size of voxel: ", 
+            "type": "float", 
+            "value": 0.2, 
+            "key": "xy-size", 
+            "order": 5
+        }, 
+        "max.-dist.": {
+            "conversions": null, 
+            "helpText": "The maximal distance of a point from a grid point", 
+            "defaultValue": 90.0, 
+            "label": "Max.-Dist. from grid: ", 
+            "type": "float", 
+            "value": 30.0, 
+            "key": "max.-dist.", 
+            "order": 11
+        }, 
+        "pores": {
+            "conversions": null, 
+            "helpText": "The amount of salt and pepper noise used to simulated nuclear pores", 
+            "defaultValue": 1, 
+            "label": "pores: ", 
+            "type": "int", 
+            "value": 1, 
+            "key": "pores", 
+            "order": 20
+        }, 
+        "height": {
+            "conversions": null, 
+            "helpText": "The height of the image", 
+            "defaultValue": 1024, 
+            "label": "Height Of Image: ", 
+            "type": "int", 
+            "value": 1024, 
+            "key": "height", 
+            "order": 2
+        }, 
+        "mask": {
+            "conversions": null, 
+            "helpText": "The mask defining the region in which the points will be sampled", 
+            "defaultValue": null, 
+            "label": "Mask: ", 
+            "type": "image-choice", 
+            "value": null, 
+            "key": "mask", 
+            "order": 9
+        }
+    }
+}
