@@ -6,3 +6,5 @@ gen.spotGenerator.numberOfSamples = 300
 gen.sampleClusteredNuclei()
 gen.createGroundTruthImage()
 gen.groundTruthImage.show()
+table = gen.getGroundTruthTable()
+table.show("nuclei")

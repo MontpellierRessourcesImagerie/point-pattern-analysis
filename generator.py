@@ -383,15 +383,8 @@ class NucleiGenerator:
             
     def getGroundTruthTable(self):
         table = ResultsTable()
-        nuclei = self.nuclei
-        if self.spotGenerator.calibration.scaled():
-            points = self.getScaledPoints()
-        for label, point in enumerate(points, start=1):
-            table.addRow()
-            table.addValue("X", point[0])
-            table.addValue("Y", point[1])
-            table.addValue("Z", point[2])
-            table.addValue("Label", label)
+        for label, nucleus in  enumerate(self.nuclei, start = 1):
+            nucleus.addToTable(table, label)
         return table     
 
 
@@ -478,6 +471,20 @@ class Nucleus:
                                               self.orientation.getRandomPerpendicularVector(), 
                                               False)
     
+    
+    def addToTable(self, table, label):
+        table.addRow()
+        table.addValue("X", self.getX())
+        table.addValue("Y", self.getY())
+        table.addValue("Z", self.getZ())
+        table.addValue("Label", label)
+        table.addValue("rx", self.getRadiusX())
+        table.addValue("ry", self.getRadiusY())
+        table.addValue("rz", self.getRadiusZ())
+        table.addValue("ox", self.orientation.x)
+        table.addValue("oy", self.orientation.y)
+        table.addValue("oz", self.orientation.z)
+        
     
     def __str__(self):
         return self.__repr__()
