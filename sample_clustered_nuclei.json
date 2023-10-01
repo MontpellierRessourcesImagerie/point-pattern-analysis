@@ -160,7 +160,7 @@
             "value": 90.0, 
             "key": "max.-dist.", 
             "order": 11
-        },
+        }, 
         "clusters": {
             "conversions": null, 
             "helpText": "The number of cluster centers in the image", 
@@ -170,7 +170,7 @@
             "value": 30, 
             "key": "clusters", 
             "order": 10
-        },  
+        }, 
         "pores": {
             "conversions": null, 
             "helpText": "The amount of salt and pepper noise used to simulated nuclear pores", 

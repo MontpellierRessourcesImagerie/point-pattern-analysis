@@ -328,29 +328,30 @@ class NucleiGenerator:
         
     def sampleUniformRandomNuclei(self):
         self.spotGenerator.sampleUniformRandomPoints()
-        self.sample()
+        self.nuclei = self.sample()
         
         
     def sampleDispersedNuclei(self):
         self.spotGenerator.sampleDispersedPoints()
-        self.sample()
+        self.nuclei = self.sample()
     
     
     def sampleClusteredNuclei(self):
         self.spotGenerator.sampleClusteredPoints()
-        self.sample()
+        self.nuclei = self.sample()
         
            
     def sample(self):
         radii = self.sampleRadii()
         orientations = self.sampleOrientations()
-        self.nuclei = []
+        nuclei = []
         for position, radius, orientation in zip(self.spotGenerator.points, radii, orientations):
             nucleus = Nucleus(self.spotGenerator.getCalibration())
             nucleus.setRawPosition(position[0], position[1], position[2])
             nucleus.setRadius(radius[0], radius[1], radius[2])
             nucleus.orientation = orientation
-            self.nuclei.append(nucleus)
+            nuclei.append(nucleus)
+        return nuclei
             
     
     def sampleRadii(self):
@@ -423,7 +424,10 @@ class NucleiGenerator:
         return table     
 
 
-
+    def removeNuclei(self, indices):
+        self.nuclei = [self.nuclei[i] for i in range(len(self.nuclei)) if i not in indices]
+    
+    
 class Nucleus:
 
     

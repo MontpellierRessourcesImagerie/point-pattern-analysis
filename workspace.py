@@ -1,21 +1,46 @@
-from ij import IJ
-from ij.plugin import ImageCalculator
-from inra.ijpb.morphology import Reconstruction3D
-from inra.ijpb.morphology.filter import Erosion
-from inra.ijpb.morphology.strel import DiskStrel
+from inra.ijpb.label import RegionAdjacencyGraph
+from fr.cnrs.mri.cialib.generator import NucleiGenerator
 
-erosionRadius = 1
+gen = NucleiGenerator()
 
-image = IJ.getImage()
-imp = image.duplicate();
-IJ.setRawThreshold(imp, 1, pow(2, 16) - 1)
-IJ.run(imp, "Convert to Mask", "background=Dark black")       
-IJ.run(imp, "Salt and Pepper", "stack")
-IJ.run(imp, "Remove Outliers...", "radius=2 threshold=50 which=Bright stack")
-stack = Reconstruction3D.fillHoles(imp.getStack())
-erosion = Erosion(DiskStrel.fromRadius(erosionRadius))
-stack = erosion.process(stack)   
-imp.setStack(stack)
-IJ.run(imp, "Divide...", "value=255.000 stack")
-IJ.run(imp, "16-bit", "")
-ImageCalculator.run(image, imp, "Multiply stack")
+numberOfSamples = 300
+gen.spotGenerator.numberOfSamples = numberOfSamples
+# gen.sampleClusteredNuclei()
+gen.sampleUniformRandomNuclei()
+gen.createGroundTruthImage()
+image = gen.groundTruthImage
+
+rag = RegionAdjacencyGraph.computeAdjacencies(image)
+
+rag = [elem.label1-1 for elem in list(rag)]
+rag = set(rag)
+
+
+gen.removeNuclei(rag)
+gen.createGroundTruthImage()
+
+missing = numberOfSamples - len(gen.nuclei)
+
+trial = 0
+while missing > 0 and trial < 10:
+    print(trial, missing)
+    gen2 = NucleiGenerator()
+    gen2.spotGenerator.numberOfSamples = missing
+    # gen2.spotGenerator.points = gen.spotGenerator.points
+    # gen2.sampleClusteredNuclei()
+    gen2.sampleUniformRandomNuclei()
+    gen.nuclei = gen.nuclei + gen2.nuclei
+    gen.createGroundTruthImage()
+    image = gen.groundTruthImage
+    
+    rag = RegionAdjacencyGraph.computeAdjacencies(image)
+    
+    rag = [elem.label1-1 for elem in list(rag)]
+    rag = set(rag)
+    
+    
+    gen.removeNuclei(rag)
+    missing = numberOfSamples - len(gen.nuclei)
+    gen.createGroundTruthImage()
+    trial = trial + 1
+gen.groundTruthImage.show()
