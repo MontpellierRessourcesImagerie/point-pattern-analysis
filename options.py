@@ -85,16 +85,26 @@ class Options(ActionListener):
         self.createDialog()
         self.dialog.showDialog()
         if self.dialog.wasCanceled() or self.wasCanceled:
-            return False
+            return None
         for option in self.sortedList():
             option.setValueFromDialog(self.dialog)
         self.autosave = self.dialog.getNextBoolean()
+        sourcePath = self.dialog.getNextString()
+        destinationPath = self.dialog.getNextString()
+        if sourcePath and sourcePath != self.path and os.path.exists(sourcePath) and sourcePath.endswith(".json"):
+            options = Options.fromFile(sourcePath)
+            self.dialog.dispose()
+            return options.showDialog()
+        if destinationPath and destinationPath != self.path and os.path.exists(os.path.dirname(destinationPath)) and destinationPath.endswith(".json"):
+            self.path = destinationPath
+            self.saveAs(destinationPath)
+            return self
         if self.autosave and self.path:
             folder = os.path.dirname(self.path)
             if not os.path.exists(folder):
                 os.makedirs(folder)
             self.save()
-        return True
+        return self
         
         
     def createDialog(self):
@@ -108,6 +118,8 @@ class Options(ActionListener):
         self.dialog.addButton("Reset", self)
         self.dialog.addToSameRow()
         self.dialog.addButton("Make Default", self)
+        self.dialog.addFileField("Load from...", self.path, 30)
+        self.dialog.addFileField("Save as...", self.path, 30)
     
     
     def sortedList(self):
@@ -142,8 +154,10 @@ class Options(ActionListener):
             self.updateDialog()
         if command == "Make Default":
             self.makeDefault()       
+        if command == "Browse":
+            print("Browsing...")
         
-    
+   
     def resetToDefault(self):
         for option in self.elements.values():
             option.reset()

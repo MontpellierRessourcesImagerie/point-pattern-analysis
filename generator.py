@@ -49,6 +49,7 @@ from inra.ijpb.measure.region3d import BoundingBox3D
 from inra.ijpb.morphology import Reconstruction3D
 from inra.ijpb.morphology.filter import Erosion
 from inra.ijpb.morphology.strel import DiskStrel
+from inra.ijpb.label import RegionAdjacencyGraph
 from mcib3d.geom import Vector3D
 from mcib3d.geom import ObjectCreator3D
 
@@ -428,6 +429,36 @@ class NucleiGenerator:
         self.nuclei = [self.nuclei[i] for i in range(len(self.nuclei)) if i not in indices]
     
     
+    def makeNonOverlapping(self):
+        self.createGroundTruthImage()
+        image = self.groundTruthImage
+        rag = RegionAdjacencyGraph.computeAdjacencies(image)
+        rag = [elem.label1-1 for elem in list(rag)]
+        rag = set(rag)
+        self.removeNuclei(rag)
+        self.createGroundTruthImage()
+        missing = self.numberOfSamples() - len(self.nuclei)
+        trial = 0
+        while missing > 0 and trial < 10:
+            IJ.log("resampling overlapping nuclei...: trial=" + str(trial) +" missing="+str(missing))
+            gen2 = NucleiGenerator()
+            gen2.spotGenerator.numberOfSamples = missing
+            # gen2.spotGenerator.points = gen.spotGenerator.points
+            # gen2.sampleClusteredNuclei()
+            gen2.sampleUniformRandomNuclei()
+            self.nuclei = self.nuclei + gen2.nuclei
+            self.createGroundTruthImage()
+            image = self.groundTruthImage            
+            rag = RegionAdjacencyGraph.computeAdjacencies(image)
+            rag = [elem.label1-1 for elem in list(rag)]
+            rag = set(rag)      
+            self.removeNuclei(rag)
+            missing = self.numberOfSamples() - len(self.nuclei)
+            self.createGroundTruthImage()
+            trial = trial + 1
+
+            
+            
 class Nucleus:
 
     

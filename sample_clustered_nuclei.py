@@ -61,7 +61,8 @@ def getOptions():
     options = Options.fromFile(getOptionsPath())
     options.autosave = SAVE_OPTIONS
     optionsOnly = Prefs.get("mri.options.only", "false")
-    if not options.showDialog():
+    options = options.showDialog()
+    if not options:
         return None
     if optionsOnly=="true":
         return None
