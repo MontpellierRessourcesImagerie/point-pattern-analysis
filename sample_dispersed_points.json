@@ -1,6 +1,6 @@
 {
     "helpUrl": "https://github.com/MontpellierRessourcesImagerie/point-pattern-analysis/wiki/3D_Synthetic_Spots", 
-    "title": "Sample Clustered Points Options", 
+    "title": "Sample Dispersed Points Options", 
     "elements": {
         "z-size": {
             "conversions": null, 

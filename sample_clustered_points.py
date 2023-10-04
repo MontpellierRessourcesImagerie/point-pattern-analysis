@@ -40,7 +40,7 @@ import time
 import datetime
 from ij import IJ
 from ij import Prefs
-from fr.cnrs.mri.cialib.generator import SpotGenerator
+from fr.cnrs.mri.cialib.generator import ClusteredRandomSpotGenerator
 from fr.cnrs.mri.cialib.options import Options
 
 
@@ -48,14 +48,14 @@ SAVE_OPTIONS = True
 
 
 def main():
-    gen = SpotGenerator()
+    gen = ClusteredRandomSpotGenerator()
     options = getOptions()
     if not options:
         return
     options.transferTo(gen, getOptionsMap())
     startTime = time.time()
     IJ.log("Started sampling at " + str(datetime.datetime.fromtimestamp(startTime)))
-    gen.sampleClusteredPoints()
+    gen.sample()
     gen.createGroundTruthImage()
     gen.groundTruthImage.show()
     table = gen.getGroundTruthTable()

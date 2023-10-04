@@ -38,19 +38,19 @@ import os
 from ij import IJ
 from ij import Prefs
 from fr.cnrs.mri.cialib.options import Options
-from fr.cnrs.mri.cialib.generator import SpotGenerator
+from fr.cnrs.mri.cialib.generator import UniformRandomSpotGenerator
 
 
 SAVE_OPTIONS = True
 
 
 def main():
-    gen = SpotGenerator()
+    gen = UniformRandomSpotGenerator()
     options = getOptions()
     if not options:
         return
     options.transferTo(gen, getOptionsMap())
-    gen.sampleUniformRandomPoints()
+    gen.sample()
     gen.createGroundTruthImage()
     gen.groundTruthImage.show()
     table = gen.getGroundTruthTable()
