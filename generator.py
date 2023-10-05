@@ -78,7 +78,8 @@ class SpotGenerator(object):
             self.sampleInMask()
         else:
             self.sampleInImage()
-            
+        return self
+        
              
     def addRandomShiftToPoints(self, maxDist):
         newPoints = [0] * len(self.points)
@@ -258,7 +259,7 @@ class UniformRandomSpotGenerator(SpotGenerator):
 class DispersedRandomSpotGenerator(SpotGenerator):
 
 
-    def __init(self):
+    def __init__(self):
         super(DispersedRandomSpotGenerator, self).__init__()
         self.maxDistFromGrid = 0
         
@@ -341,23 +342,9 @@ class NucleiGenerator:
         self.nuclei = []
         self.groundTruthImage = None
         
-        
-    def sampleUniformRandomNuclei(self):
-        self.spotGenerator.sampleUniformRandomPoints()
-        self.nuclei = self.sample()
-        
-        
-    def sampleDispersedNuclei(self):
-        self.spotGenerator.sampleDispersedPoints()
-        self.nuclei = self.sample()
-    
-    
-    def sampleClusteredNuclei(self):
-        self.spotGenerator.sampleClusteredPoints()
-        self.nuclei = self.sample()
-        
            
     def sample(self):
+        self.spotGenerator.sample()
         radii = self.sampleRadii()
         orientations = self.sampleOrientations()
         nuclei = []

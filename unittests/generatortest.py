@@ -2,19 +2,23 @@ import sys
 import unittest
 from ij.gui import NewImage
 from inra.ijpb.label.edit import FindAllLabels
-from fr.cnrs.mri.cialib.generator import SpotGenerator
-
+from fr.cnrs.mri.cialib.generator import UniformRandomSpotGenerator
+from fr.cnrs.mri.cialib.generator import DispersedRandomSpotGenerator
+from fr.cnrs.mri.cialib.generator import ClusteredRandomSpotGenerator
 
 class SpotGeneratorTest(unittest.TestCase):
 
 
     def setUp(self):
         unittest.TestCase.setUp(self)
-        self.generator = SpotGenerator()
-        self.generator.width = 16
-        self.generator.height = 16
-        self.generator.depth = 8
-        self.generator.numberOfSamples = 16
+      
+      
+    def setupGenerator(self, generator):
+        generator.width = 16
+        generator.height = 16
+        generator.depth = 8
+        generator.numberOfSamples = 16
+        return generator
         
    
     def tearDown(self):
@@ -22,175 +26,180 @@ class SpotGeneratorTest(unittest.TestCase):
 
 
     def testSampleUniformRandomPointsNoMask(self):
-        self.generator.sampleUniformRandomPoints()
+        generator = self.setupGenerator(UniformRandomSpotGenerator())
+        generator.sample()
         
         # test if the right number of points has been sampled
-        self.assertEquals(self.generator.numberOfSamples, len(self.generator.points))
+        self.assertEquals(generator.numberOfSamples, len(generator.points))
 
         # test if the first sample has 3 coordinates
-        self.assertEquals(3, len(self.generator.points[0]))
+        self.assertEquals(3, len(generator.points[0]))
         
         # assert that there are no duplicates in the samples
-        self.assertEquals(len(set(self.generator.points)), len(self.generator.points))
+        self.assertEquals(len(set(generator.points)), len(generator.points))
         
 
     def testSampleUniformRandomPointsWithMask(self):
-        self.createMask()
-        self.generator.sampleUniformRandomPoints()
+        generator = self.createMask(self.setupGenerator(UniformRandomSpotGenerator()))
+        generator.sample()
         
         # test if the right number of points has been sampled
-        self.assertEquals(self.generator.numberOfSamples, len(self.generator.points))
+        self.assertEquals(generator.numberOfSamples, len(generator.points))
         
         # test if the first sample has 3 coordinates
-        self.assertEquals(3, len(self.generator.points[0]))
+        self.assertEquals(3, len(generator.points[0]))
         
         # assert that there are no duplicates in the samples
-        self.assertEquals(len(set(self.generator.points)), len(self.generator.points))
+        self.assertEquals(len(set(generator.points)), len(generator.points))
         
         # assert all sampled points are inside of the mask
-        stack = self.generator.mask.getStack()
-        for point in self.generator.points:
+        stack = generator.mask.getStack()
+        for point in generator.points:
             self.assertEquals(255, stack.getVoxel(point[0], point[1], point[2]))
         
         # assert no points outside of the mask have been sampled
         count = 0
-        for x in range(self.generator.width):
-            for y in range(self.generator.height):
-                for z in range(self.generator.depth):
+        for x in range(generator.width):
+            for y in range(generator.height):
+                for z in range(generator.depth):
                     if stack.getVoxel(x, y, z) == 0:
-                        self.assertTrue(not (x, y, z) in self.generator.points)
+                        self.assertTrue(not (x, y, z) in generator.points)
                         count = count + 1
         self.assertTrue(count > 0)
                         
 
     def testSampleDispersedPointsNoMask(self):
-        self.generator.numberOfSamples = 100
-        self.generator.sampleDispersedPoints()
+        generator = self.setupGenerator(DispersedRandomSpotGenerator())
+        generator.numberOfSamples = 100
+        generator.sample()
     
         # test if the right number of points has been sampled
-        self.assertEquals(self.generator.numberOfSamples, len(self.generator.points))
+        self.assertEquals(generator.numberOfSamples, len(generator.points))
         
-        self.generator.maxDistFromGrid = 3
-        self.generator.sampleDispersedPoints()
+        generator.maxDistFromGrid = 3
+        generator.sample()
         
-        self.assertEquals(self.generator.numberOfSamples, len(self.generator.points))
-        for x, y, z in self.generator.points:
+        self.assertEquals(generator.numberOfSamples, len(generator.points))
+        for x, y, z in generator.points:
             self.assertTrue(x >= 0)
             self.assertTrue(y >= 0)
             self.assertTrue(z >= 0)
-            self.assertTrue(x < self.generator.width)
-            self.assertTrue(y < self.generator.height)
-            self.assertTrue(z < self.generator.depth)
+            self.assertTrue(x < generator.width)
+            self.assertTrue(y < generator.height)
+            self.assertTrue(z < generator.depth)
        
-        self.assertEquals(self.generator.numberOfSamples, len(set(self.generator.points)))
+        self.assertEquals(generator.numberOfSamples, len(set(generator.points)))
        
        
     def testSampleDispersedPointsWithMask(self):
-        self.createMask()
-        self.generator.numberOfSamples = 25
-        self.generator.sampleDispersedPoints()
+        generator = self.createMask(self.setupGenerator(DispersedRandomSpotGenerator()))        
+        generator.numberOfSamples = 25
+        generator.sample()
     
         # test if the right number of points has been sampled
-        self.assertEquals(self.generator.numberOfSamples, len(self.generator.points))
-        for x, y, z in self.generator.points:
-            pixelValue = self.generator.mask.getStack().getVoxel(x, y, z)
+        self.assertEquals(generator.numberOfSamples, len(generator.points))
+        for x, y, z in generator.points:
+            pixelValue = generator.mask.getStack().getVoxel(x, y, z)
             self.assertTrue(pixelValue > 0)
            
-        self.generator.maxDistFromGrid = 3
-        self.generator.sampleDispersedPoints()
-        for x, y, z in self.generator.points:
-            pixelValue = self.generator.mask.getStack().getVoxel(x, y, z)
+        generator.maxDistFromGrid = 3
+        generator.sample()
+        for x, y, z in generator.points:
+            pixelValue = generator.mask.getStack().getVoxel(x, y, z)
             self.assertTrue(pixelValue > 0)
         
-        self.assertEquals(self.generator.numberOfSamples, len(set(self.generator.points)))
+        self.assertEquals(generator.numberOfSamples, len(set(generator.points)))
         
      
     def testSampleClusteredPointsNoMask(self):
-        self.generator.numberOfSamples = 100
-        self.generator.numberOfClusters = 5
-        self.generator.maxDistFromClusterCenter = 10
-        self.generator.sampleClusteredPoints()
+        generator = self.setupGenerator(ClusteredRandomSpotGenerator())
+        generator.numberOfClusters = 5
+        generator.maxDistFromClusterCenter = 10
+        generator.sample()
         
         # test if the right number of points has been sampled
-        self.assertEquals(self.generator.numberOfSamples, len(self.generator.points))
+        self.assertEquals(generator.numberOfSamples, len(generator.points))
         
         # assert that there are no duplicates in the samples
-        self.assertEquals(len(set(self.generator.points)), len(self.generator.points))
+        self.assertEquals(len(set(generator.points)), len(generator.points))
     
     
     def testSampleClusteredPointsWithMask(self):
-        self.createMask()
-        self.generator.numberOfSamples = 25
-        self.generator.numberOfClusters = 3
-        self.generator.maxDistFromClusterCenter = 20
-        self.generator.sampleClusteredPoints()
+        generator = self.createMask(self.setupGenerator(ClusteredRandomSpotGenerator()))
+        generator.numberOfSamples = 25
+        generator.numberOfClusters = 3
+        generator.maxDistFromClusterCenter = 20
+        generator.sample()
         
         # test if the right number of points has been sampled
-        self.assertEquals(self.generator.numberOfSamples, len(self.generator.points))
+        self.assertEquals(generator.numberOfSamples, len(generator.points))
         
         # assert that there are no duplicates in the samples
-        self.assertEquals(len(set(self.generator.points)), len(self.generator.points))
+        self.assertEquals(len(set(generator.points)), len(generator.points))
     
     
     def testCreateGroundTruthImage(self):
-        self.generator.sampleUniformRandomPoints()
-        self.generator.createGroundTruthImage()
-        labels = FindAllLabels().process(self.generator.groundTruthImage)
+        generator = self.setupGenerator(UniformRandomSpotGenerator())
+        generator.sample()
+        generator.createGroundTruthImage()
+        labels = FindAllLabels().process(generator.groundTruthImage)
         
         # The ground-truth image should contain one label for each point
-        self.assertEquals(len(self.generator.points), len(labels))
+        self.assertEquals(len(generator.points), len(labels))
 
         # The label of the first point must be one
         self.assertEquals(1, min(labels))
 
         # The label of the last point corresponds to the number of points
-        self.assertEquals(len(self.generator.points), max(labels))
+        self.assertEquals(len(generator.points), max(labels))
         
     
     def testGetGroundTruthTableNoScale(self):
-        self.generator.sampleUniformRandomPoints()
-        table = self.generator.getGroundTruthTable()
+        generator = self.setupGenerator(UniformRandomSpotGenerator())
+        generator.sample()
+        table = generator.getGroundTruthTable()
         
         # There should be one row per sample
-        self.assertEquals(len(self.generator.points), table.size())
+        self.assertEquals(len(generator.points), table.size())
         
         # Coordinates in the table should correspond to the sampled coordinates
-        for row, point in enumerate(self.generator.points):
+        for row, point in enumerate(generator.points):
             self.assertEquals(point, (int(table.getValue("X", row)), 
                                       int(table.getValue("Y", row)),
                                       int(table.getValue("Z", row))))
                                       
                                       
     def testGetGroundTruthTableWithScale(self):
-        self.generator.setScale(0.2, 0.2, 0.6, chr(181) + "m")
-        self.generator.sampleUniformRandomPoints()
-        table = self.generator.getGroundTruthTable()
+        generator = self.setupGenerator(UniformRandomSpotGenerator())        
+        generator.setScale(0.2, 0.2, 0.6, chr(181) + "m")
+        generator.sample()
+        table = generator.getGroundTruthTable()
         
         # There should be one row per sample
-        self.assertEquals(len(self.generator.points), table.size())
+        self.assertEquals(len(generator.points), table.size())
         
         # Coordinates in the table should correspond to the sampled coordinates in physical units
-        for row, point in enumerate(self.generator.getScaledPoints()):
+        for row, point in enumerate(generator.getScaledPoints()):
             self.assertEquals(point, (table.getValue("X", row), 
                                       table.getValue("Y", row),
                                       table.getValue("Z", row)))
                                       
     
-    def createMask(self):
-        self.generator.mask = NewImage.createByteImage("mask", self.generator.width, 
-                                                               self.generator.height, 
-                                                               self.generator.depth,
-                                                               NewImage.FILL_BLACK)
+    def createMask(self, generator):
+        generator.mask = NewImage.createByteImage("mask", generator.width, 
+                                                          generator.height, 
+                                                          generator.depth,
+                                                          NewImage.FILL_BLACK)
         xrange = range(4, 12)
         yrange = range(4, 12)
         zrange = range(2, 6)
-        stack = self.generator.mask.getStack()
+        stack = generator.mask.getStack()
         for x in xrange:
             for y in yrange:
                 for z in zrange:        
                     stack.setVoxel(x, y, z, 255)                                                     
+        return generator
         
-    
     
 def suite():
     suite = unittest.TestSuite()
