@@ -95,6 +95,7 @@ def getOptionsMap():
                    'zRadiusMean': 'mean_z_radius',
                    'saltAndPepper': 'pores',
                    'erosionRadius': 'erosion',
+                   'nonOverlapping': 'non-overlapping',
                   }
     return optionsMap                          
                           

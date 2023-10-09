@@ -200,6 +200,16 @@
             "value": null, 
             "key": "mask", 
             "order": 9
+        },
+        "non-overlapping": {
+            "conversions": null, 
+            "helpText": "If selected, the tool will try to make the nuclei non-overlapping", 
+            "defaultValue": false, 
+            "label": "Non-Overlapping: ", 
+            "type": "bool", 
+            "value": true, 
+            "key": "non-overlapping", 
+            "order": 22
         }
     }
 }
