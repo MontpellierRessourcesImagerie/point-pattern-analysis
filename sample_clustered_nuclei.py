@@ -38,19 +38,19 @@ import os
 from ij import IJ
 from ij import Prefs
 from fr.cnrs.mri.cialib.options import Options
-from fr.cnrs.mri.cialib.generator import NucleiGenerator
+from fr.cnrs.mri.cialib.generator import ClusteredRandomNucleiGenerator
 
 
 SAVE_OPTIONS = True
 
 
 def main():
-    gen = NucleiGenerator()
+    gen = ClusteredRandomNucleiGenerator()
     options = getOptions()
     if not options:
         return
     options.transferTo(gen, getOptionsMap())
-    gen.sampleClusteredNuclei()
+    gen.sample()
     gen.createGroundTruthImage()
     gen.groundTruthImage.show()
     table = gen.getGroundTruthTable()

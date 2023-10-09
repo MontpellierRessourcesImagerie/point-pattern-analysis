@@ -35,26 +35,33 @@
 ################################################################################################
 
 import os
+import time
+import datetime
 from ij import IJ
 from ij import Prefs
 from fr.cnrs.mri.cialib.options import Options
-from fr.cnrs.mri.cialib.generator import NucleiGenerator
+from fr.cnrs.mri.cialib.generator import UniformRandomNucleiGenerator
 
 
 SAVE_OPTIONS = True
 
 
 def main():
-    gen = NucleiGenerator()
+    startTime = time.time()
+    IJ.log("Started sampling uniform random nuclei at " + str(datetime.datetime.fromtimestamp(startTime)))
+    gen = UniformRandomNucleiGenerator()
     options = getOptions()
     if not options:
         return
     options.transferTo(gen, getOptionsMap())
-    gen.sampleUniformRandomNuclei()
+    gen.sample()
     gen.createGroundTruthImage()
     gen.groundTruthImage.show()
     table = gen.getGroundTruthTable()
     table.show("Random Nuclei Uniform Distribution")
+    endTime = time.time()
+    IJ.log("Finished sampling uniform random nuclei at " + str(datetime.datetime.fromtimestamp(endTime)))
+    IJ.log("Duration of calculation: " + str(datetime.timedelta(seconds = endTime - startTime)))
 
 
 def getOptions():
@@ -92,6 +99,7 @@ def getOptionsMap():
                    'zRadiusMean': 'mean_z_radius',
                    'saltAndPepper': 'pores',
                    'erosionRadius': 'erosion',
+                   'nonOverlapping': 'non-overlapping',
                   }
     return optionsMap                          
                           

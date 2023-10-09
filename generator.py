@@ -321,11 +321,12 @@ class ClusteredRandomSpotGenerator(SpotGenerator):
 
 
 
-class NucleiGenerator:
+class NucleiGenerator(object):
 
 
     def __init__(self):
-        self.spotGenerator = SpotGenerator()
+        super(NucleiGenerator, self).__init__()
+        self.spotGenerator = self.getSpotGeneratorClass()()
         self.spotGenerator.setScale(0.2, 0.2, 0.7, "micron")
         self.spotGenerator.width = 1024
         self.spotGenerator.height = 1024
@@ -339,12 +340,24 @@ class NucleiGenerator:
         self.zRadiusStddev = 1
         self.saltAndPepper = 1
         self.erosionRadius = 1
+        self.nonOverlapping = False
         self.nuclei = []
         self.groundTruthImage = None
+        
+        
+    def getSpotGeneratorClass(self):
+        raise NotImplementedError("Subclass Responsibility")
         
            
     def sample(self):
         self.spotGenerator.sample()
+        self.sampleShapes()
+        if self.nonOverlapping:
+            self.makeNonOverlapping()
+        return self.nuclei
+          
+          
+    def sampleShapes(self):
         radii = self.sampleRadii()
         orientations = self.sampleOrientations()
         nuclei = []
@@ -354,8 +367,9 @@ class NucleiGenerator:
             nucleus.setRadius(radius[0], radius[1], radius[2])
             nucleus.orientation = orientation
             nuclei.append(nucleus)
+        self.nuclei = nuclei
         return nuclei
-            
+    
     
     def sampleRadii(self):
         radiusX = [random.normalvariate(self.xRadiusMean, self.xRadiusStddev) for i in range(self.numberOfSamples())]
@@ -432,35 +446,109 @@ class NucleiGenerator:
     
     
     def makeNonOverlapping(self):
-        self.createGroundTruthImage()
-        image = self.groundTruthImage
-        rag = RegionAdjacencyGraph.computeAdjacencies(image)
-        rag = [elem.label1-1 for elem in list(rag)]
-        rag = set(rag)
-        self.removeNuclei(rag)
-        self.createGroundTruthImage()
+        self.removeTouchingNuclei()
         missing = self.numberOfSamples() - len(self.nuclei)
         trial = 0
         while missing > 0 and trial < 10:
-            IJ.log("resampling overlapping nuclei...: trial=" + str(trial) +" missing="+str(missing))
-            gen2 = NucleiGenerator()
-            gen2.spotGenerator.numberOfSamples = missing
-            # gen2.spotGenerator.points = gen.spotGenerator.points
-            # gen2.sampleClusteredNuclei()
-            gen2.sampleUniformRandomNuclei()
-            self.nuclei = self.nuclei + gen2.nuclei
-            self.createGroundTruthImage()
-            image = self.groundTruthImage            
-            rag = RegionAdjacencyGraph.computeAdjacencies(image)
-            rag = [elem.label1-1 for elem in list(rag)]
-            rag = set(rag)      
-            self.removeNuclei(rag)
-            missing = self.numberOfSamples() - len(self.nuclei)
-            self.createGroundTruthImage()
+            IJ.log("resampling overlapping nuclei...: trial=" + str(trial+1) +" missing="+str(missing))
+            auxGenerator = self.getAuxiliaryGenerator(missing)
+            auxGenerator.sample()
+            self.nuclei = self.nuclei + auxGenerator.nuclei
+            self.removeTouchingNuclei()
+            missing = self.numberOfSamples() - len(self.nuclei)            
             trial = trial + 1
+        self.createGroundTruthImage()
 
-            
-            
+
+    def removeTouchingNuclei(self):
+        touchingNuclei = self.getTouchingNuclei()      
+        self.removeNuclei(touchingNuclei)
+
+
+    def getTouchingNuclei(self):
+        self.createGroundTruthImage()           
+        rag = RegionAdjacencyGraph.computeAdjacencies(self.groundTruthImage)
+        rag = [elem.label1 - 1 for elem in list(rag)]
+        rag = set(rag)
+        return rag
+        
+    
+    def getAuxiliaryGenerator(self, numberOfSamples):
+        auxGenerator = type(self)()
+        auxGenerator.spotGenerator.mask = self.spotGenerator.mask
+        auxGenerator.spotGenerator.numberOfSamples = numberOfSamples
+        return auxGenerator
+    
+    
+    
+class ClusteredRandomNucleiGenerator(NucleiGenerator):
+    
+    
+    def __init__(self):
+        super(ClusteredRandomNucleiGenerator, self).__init__()     
+
+ 
+    def getSpotGeneratorClass(self):
+        return ClusteredRandomSpotGenerator
+    
+ 
+    def getAuxiliaryGenerator(self, numberOfSamples):
+        auxGenerator = super(ClusteredRandomNucleiGenerator, self).getAuxiliaryGenerator(numberOfSamples)
+        auxGenerator.spotGenerator.clusterCenters = self.spotGenerator.clusterCenters
+        return auxGenerator
+ 
+ 
+ 
+class UniformRandomNucleiGenerator(NucleiGenerator):
+    
+    
+    def __init__(self):
+        super(UniformRandomNucleiGenerator, self).__init__()     
+
+ 
+    def getSpotGeneratorClass(self):
+        return UniformRandomSpotGenerator
+ 
+ 
+
+class DispersedRandomNucleiGenerator(NucleiGenerator):
+    
+    
+    def __init__(self):
+        super(DispersedRandomNucleiGenerator, self).__init__()     
+
+ 
+    def getSpotGeneratorClass(self):
+        return DispersedRandomSpotGenerator
+ 
+ 
+    def makeNonOverlapping(self):
+        auxGenerator = self.getAuxiliaryGenerator(self.numberOfSamples())
+        auxGenerator.sample()
+        gridSamples = auxGenerator.spotGenerator.points
+        touchingNuclei = self.getTouchingNuclei()
+        missing = len(touchingNuclei)
+        trial = 0
+        while missing > 0 and trial < 10:
+            IJ.log("resampling overlapping nuclei...: trial=" + str(trial+1) +" missing="+str(missing))
+            for nucleusIndex in touchingNuclei:
+                point = gridSamples[nucleusIndex]
+                shiftedPoint = self.spotGenerator.getShiftedPoint(point, self.spotGenerator.maxDistFromGrid)
+                self.spotGenerator.points[nucleusIndex] = shiftedPoint
+            self.sampleShapes()
+            touchingNuclei = self.getTouchingNuclei()    
+            missing = len(touchingNuclei)
+            trial = trial + 1
+        self.createGroundTruthImage()    
+        
+ 
+    def getAuxiliaryGenerator(self, numberOfSamples):
+        auxGenerator = super(DispersedRandomNucleiGenerator, self).getAuxiliaryGenerator(numberOfSamples)
+        auxGenerator.spotGenerator.maxDistFromGrid = 0        
+        return auxGenerator
+ 
+ 
+ 
 class Nucleus:
 
     
