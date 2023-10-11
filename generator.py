@@ -36,6 +36,9 @@
 from __future__ import division
 import random
 import math
+import os
+import time
+import datetime
 from ij import IJ
 from ij.gui import NewImage
 from ij.measure import Calibration
@@ -71,6 +74,9 @@ class SpotGenerator(object):
         self.image = None
         self.groundTruthImage = None
         self.lutName = "glasbey on dark"
+        self.batchProcess = False
+        self.outputFolder = None
+        self.numberOfImages = 100
        
 
     def sample(self):
@@ -231,7 +237,33 @@ class SpotGenerator(object):
         self.mask = None
         
 
-
+    def runBatch(self):
+        startTime = time.time()
+        IJ.log("Started batch point generation at " + str(datetime.datetime.fromtimestamp(startTime)))
+        if not os.path.exists(self.outputFolder):
+            os.makedirs(self.outputFolder)
+        imageBaseName = self.imageBaseName()
+        digits = len(str(self.numberOfImages))
+        for nrOfImage in range(1, self.numberOfImages + 1):
+            IJ.log("Creating image number " + str(nrOfImage) + " of " + str(self.numberOfImages))
+            self.sample()
+            self.createGroundTruthImage()
+            table = self.getGroundTruthTable()
+            imageName = imageBaseName + str(nrOfImage).zfill(digits)
+            path = os.path.join(self.outputFolder, imageName + '.tif')
+            IJ.log("Saving image number " + str(nrOfImage) + " of " + str(self.numberOfImages))
+            IJ.save(self.groundTruthImage, path)
+            table.save(os.path.join(self.outputFolder, imageName + '.xls'))
+        endTime = time.time()
+        IJ.log("Finished batch point generation at " + str(datetime.datetime.fromtimestamp(endTime)))
+        IJ.log("Duration: " + str(datetime.timedelta(seconds = endTime - startTime)))
+        
+                
+    def imageBaseName(self):
+        return "points"
+    
+    
+    
 class UniformRandomSpotGenerator(SpotGenerator):
 
     
@@ -253,6 +285,10 @@ class UniformRandomSpotGenerator(SpotGenerator):
         self.points = self.indicesToCoordinates(sampleIndices)
         IJ.log("Randomly selected " + str(len(self.points)) + 
                " uniformly distributed points from the " + str(N) + " points in the image.")
+
+
+    def imageBaseName(self):
+        return "uniform_points"
 
 
 
@@ -289,6 +325,10 @@ class DispersedRandomSpotGenerator(SpotGenerator):
         IJ.log("Randomly selected " + str(len(self.points)) + " dispersed points from the " + str(N) + " points in the image with max. grid distance = " + str(self.maxDistFromGrid) + ".")               
 
 
+    def imageBaseName(self):
+        return "dispersed_points"
+        
+        
 
 class ClusteredRandomSpotGenerator(SpotGenerator):
 
@@ -318,6 +358,10 @@ class ClusteredRandomSpotGenerator(SpotGenerator):
         IJ.log("Randomly selected " + str(len(self.points)) + 
                " clustered points from the " + str(N) + 
                " points in the image in " + str(len(self.clusterCenters)) + " clusters.")
+
+
+    def imageBaseName(self):
+        return "clustered_points"
 
 
 

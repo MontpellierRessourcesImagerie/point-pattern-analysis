@@ -2,13 +2,25 @@
     "helpUrl": "https://github.com/MontpellierRessourcesImagerie/point-pattern-analysis/wiki/3D_Synthetic_Spots", 
     "title": "Sample Random Points Options", 
     "elements": {
+        "batch": {
+            "conversions": null, 
+            "helpText": "If checked all files in the selected folder will be processed", 
+            "defaultValue": null, 
+            "label": "Batch ", 
+            "type": "bool", 
+            "sameRow": false, 
+            "value": true, 
+            "key": "batch", 
+            "order": 10
+        }, 
         "z-size": {
             "conversions": null, 
             "helpText": "The voxel size in the z-dimension", 
             "defaultValue": 5.0, 
             "label": "Z-size of voxel: ", 
             "type": "float", 
-            "value": 5.0, 
+            "sameRow": true, 
+            "value": 0.3, 
             "key": "z-size", 
             "order": 6
         }, 
@@ -22,6 +34,7 @@
             "defaultValue": 16, 
             "label": "Type of Image: ", 
             "type": "choice", 
+            "sameRow": false, 
             "choices": [
                 "8-bit", 
                 "16-bit", 
@@ -37,6 +50,7 @@
             "defaultValue": 1000, 
             "label": "Number Of Samples: ", 
             "type": "int", 
+            "sameRow": false, 
             "value": 1000, 
             "key": "number", 
             "order": 8
@@ -47,9 +61,21 @@
             "defaultValue": "\u00b5m", 
             "label": "Unit: ", 
             "type": "string", 
+            "sameRow": true, 
             "value": "\u00b5m", 
             "key": "unit", 
             "order": 7
+        }, 
+        "number-of-images": {
+            "conversions": null, 
+            "helpText": "The number of images that will be created", 
+            "defaultValue": 100, 
+            "label": "Number of Images: ", 
+            "type": "int", 
+            "sameRow": true, 
+            "value": 100, 
+            "key": "number-of-images", 
+            "order": 11
         }, 
         "depth": {
             "conversions": null, 
@@ -57,7 +83,8 @@
             "defaultValue": 64, 
             "label": "Depth Of Image: ", 
             "type": "int", 
-            "value": 64, 
+            "sameRow": true, 
+            "value": 50, 
             "key": "depth", 
             "order": 3
         }, 
@@ -67,7 +94,8 @@
             "defaultValue": 512, 
             "label": "Width Of Image: ", 
             "type": "int", 
-            "value": 512, 
+            "sameRow": false, 
+            "value": 1300, 
             "key": "width", 
             "order": 1
         }, 
@@ -77,9 +105,21 @@
             "defaultValue": 64, 
             "label": "XY-size of voxel: ", 
             "type": "float", 
-            "value": 0.7, 
+            "sameRow": false, 
+            "value": 0.067, 
             "key": "xy-size", 
             "order": 5
+        }, 
+        "output-folder": {
+            "conversions": null, 
+            "helpText": "The folder into which the result images will be written", 
+            "defaultValue": null, 
+            "label": "Output Folder: ", 
+            "type": "directory", 
+            "sameRow": true, 
+            "value": "/home/baecker/Documents/mri/2023/mifobio/experiments/A01-spot-detection/", 
+            "key": "output-folder", 
+            "order": 12
         }, 
         "height": {
             "conversions": null, 
@@ -87,7 +127,8 @@
             "defaultValue": 512, 
             "label": "Height Of Image: ", 
             "type": "int", 
-            "value": 512, 
+            "sameRow": true, 
+            "value": 1300, 
             "key": "height", 
             "order": 2
         }, 
@@ -97,6 +138,7 @@
             "defaultValue": null, 
             "label": "Mask: ", 
             "type": "image-choice", 
+            "sameRow": false, 
             "value": null, 
             "key": "mask", 
             "order": 9

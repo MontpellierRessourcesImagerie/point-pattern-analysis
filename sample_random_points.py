@@ -50,6 +50,9 @@ def main():
     if not options:
         return
     options.transferTo(gen, getOptionsMap())
+    if gen.batchProcess:
+        gen.runBatch()
+        return
     gen.sample()
     gen.createGroundTruthImage()
     gen.groundTruthImage.show()
@@ -84,7 +87,10 @@ def getOptionsMap():
                    'calibration.pixelDepth': 'z-size',
                    'calibration.unit': 'unit',
                    'numberOfSamples': 'number',
-                   'mask': 'mask'
+                   'mask': 'mask',
+                   'batchProcess': 'batch',
+                   'outputFolder': 'output-folder',
+                   'numberOfImages': 'number-of-images',
                   }
     return optionsMap                          
                           

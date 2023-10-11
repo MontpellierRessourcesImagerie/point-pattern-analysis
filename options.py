@@ -7,6 +7,7 @@ from ij import IJ
 from ij import WindowManager
 from ij.gui import GenericDialog
 
+PATH_FIELD_COLUMNS = 30
 
 def rgetattr(obj, attr, *args):
     '''recursive version of getattr, written by https://stackoverflow.com/users/190597/unutbu (Thanks!)
@@ -110,6 +111,8 @@ class Options(ActionListener):
     def createDialog(self):
         self.dialog = GenericDialog(self.getTitle())
         for option in self.sortedList():
+            if option.isSameRow():
+                self.dialog.addToSameRow()
             option.addToDialog(self.dialog)
         self.dialog.addCheckbox("save", self.autosave)
         if self.helpUrl:
@@ -118,8 +121,8 @@ class Options(ActionListener):
         self.dialog.addButton("Reset", self)
         self.dialog.addToSameRow()
         self.dialog.addButton("Make Default", self)
-        self.dialog.addFileField("Load from...", self.path, 30)
-        self.dialog.addFileField("Save as...", self.path, 30)
+        self.dialog.addFileField("Load from...", self.path, PATH_FIELD_COLUMNS)
+        self.dialog.addFileField("Save as...", self.path, PATH_FIELD_COLUMNS)
     
     
     def sortedList(self):
@@ -241,8 +244,8 @@ class Options(ActionListener):
 
 
 class Option(object):
-
     
+   
     def __init__(self, key, value):
         super(Option, self).__init__()
         self.key = key
@@ -254,8 +257,18 @@ class Option(object):
         self.type = "string"
         self.conversions = None
         self.field = None
+        self.sameRow = False
         
 
+    @classmethod
+    def getTypes(cls):
+        types = {'int': IntOption, 'float': FloatOption, 
+             'string': StringOption, 'bool': BooleanOption, 
+             'choice': ChoiceOption, 'image-choice': ImageChoiceOption,
+             'directory': DirectoryOption}
+        return types
+    
+    
     def getKey(self):
         return self.key
 
@@ -320,7 +333,11 @@ class Option(object):
         
     def getField(self):
         return self.field
-        
+    
+    
+    def isSameRow(self):
+        return self.sameRow
+    
         
     def __str__(self):
         return self.__repr__()
@@ -333,11 +350,8 @@ class Option(object):
         
         
     @classmethod    
-    def fromDict(cls, aDict):
-        types = {'int': IntOption, 'float': FloatOption, 
-                 'string': StringOption, 'bool': BooleanOption, 
-                 'choice': ChoiceOption, 'image-choice': ImageChoiceOption}
-        option = types[aDict['type']](aDict['key'], aDict['value'])
+    def fromDict(cls, aDict):        
+        option = cls.getTypes()[aDict['type']](aDict['key'], aDict['value'])
         for key, value in aDict.items():
             setattr(option, key, value)
         return option
@@ -373,6 +387,7 @@ class IntOption(NumericOption):
     
     def setValueFromDialog(self, dialog):
         self.value = int(dialog.getNextNumber())
+
 
 
 class FloatOption(NumericOption):
@@ -479,3 +494,22 @@ class ImageChoiceOption(Option):
         if not value:
             value = "None"
         self.field.select(value)
+       
+       
+        
+class DirectoryOption(Option):
+
+    
+    def __init__(self, key, value):
+        super(DirectoryOption, self).__init__(key, value)
+        self.type = 'directory'
+    
+    
+    def addToDialog(self, dialog):            
+        dialog.addDirectoryField(self.label, self.value, PATH_FIELD_COLUMNS)
+        self.field = dialog.getStringFields()[-1]
+        self.field.setName(self.key)
+    
+    
+    def setValueFromDialog(self, dialog):
+        self.value = dialog.getNextString()
