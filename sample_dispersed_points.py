@@ -53,19 +53,7 @@ def main():
     if not options:
         return
     options.transferTo(gen, getOptionsMap())
-    if gen.batchProcess:
-        gen.runBatch()
-        return
-    startTime = time.time()
-    IJ.log("Started sampling at " + str(datetime.datetime.fromtimestamp(startTime)))    
-    gen.sample()
-    gen.createGroundTruthImage()
-    gen.groundTruthImage.show()
-    table = gen.getGroundTruthTable()
-    table.show("Dispersed Random Points")
-    endTime = time.time()
-    IJ.log("Finished sampling at " + str(datetime.datetime.fromtimestamp(endTime)))
-    IJ.log("Duration of calculation: " + str(datetime.timedelta(seconds=endTime-startTime)))
+    gen.run()
     
   
 def getOptionsPath():

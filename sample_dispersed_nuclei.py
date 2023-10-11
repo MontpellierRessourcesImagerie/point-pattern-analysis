@@ -50,11 +50,7 @@ def main():
     if not options:
         return
     options.transferTo(gen, getOptionsMap())
-    gen.sample()
-    gen.createGroundTruthImage()
-    gen.groundTruthImage.show()
-    table = gen.getGroundTruthTable()
-    table.show("Random Nuclei Dispersed Distribution")
+    gen.run()
 
 
 def getOptions():
@@ -94,6 +90,9 @@ def getOptionsMap():
                    'saltAndPepper': 'pores',
                    'erosionRadius': 'erosion',
                    'nonOverlapping': 'non-overlapping',
+                   'batchProcess': 'batch',
+                   'outputFolder': 'output-folder',
+                   'numberOfImages': 'number-of-images',
                   }
     return optionsMap                          
                           

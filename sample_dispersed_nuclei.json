@@ -200,6 +200,39 @@
             "value": null, 
             "key": "mask", 
             "order": 9
+        },
+        "batch": {
+            "conversions": null, 
+            "helpText": "If checked all files in the selected folder will be processed", 
+            "defaultValue": false, 
+            "label": "Batch ", 
+            "type": "bool", 
+            "sameRow": false, 
+            "value": false, 
+            "key": "batch", 
+            "order": 22
+        },
+        "number-of-images": {
+            "conversions": null, 
+            "helpText": "The number of images that will be created", 
+            "defaultValue": 100, 
+            "label": "Number of Images: ", 
+            "type": "int", 
+            "sameRow": true, 
+            "value": 100, 
+            "key": "number-of-images", 
+            "order": 23
+        },
+        "output-folder": {
+            "conversions": null, 
+            "helpText": "The folder into which the result images will be written", 
+            "defaultValue": null, 
+            "label": "Output Folder: ", 
+            "type": "directory", 
+            "sameRow": true, 
+            "value": "/home/baecker/Documents/mri/2023/mifobio/experiments/A01-spot-detection/", 
+            "key": "output-folder", 
+            "order": 24
         }
     }
 }

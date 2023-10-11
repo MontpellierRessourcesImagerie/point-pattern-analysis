@@ -52,19 +52,7 @@ def main():
     if not options:
         return
     options.transferTo(gen, getOptionsMap())
-    startTime = time.time()
-    IJ.log("Started sampling uniform random nuclei at " + str(datetime.datetime.fromtimestamp(startTime)))
-    if gen.batchProcess:
-        gen.runBatch()
-        return
-    gen.sample()
-    gen.createGroundTruthImage()
-    gen.groundTruthImage.show()
-    table = gen.getGroundTruthTable()
-    table.show("Random Nuclei Uniform Distribution")
-    endTime = time.time()
-    IJ.log("Finished sampling uniform random nuclei at " + str(datetime.datetime.fromtimestamp(endTime)))
-    IJ.log("Duration of calculation: " + str(datetime.timedelta(seconds = endTime - startTime)))
+    gen.run()
 
 
 def getOptions():

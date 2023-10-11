@@ -50,14 +50,7 @@ def main():
     if not options:
         return
     options.transferTo(gen, getOptionsMap())
-    if gen.batchProcess:
-        gen.runBatch()
-        return
-    gen.sample()
-    gen.createGroundTruthImage()
-    gen.groundTruthImage.show()
-    table = gen.getGroundTruthTable()
-    table.show("Random Points Uniform Distribution")
+    gen.run()
     
     
 def getOptions():

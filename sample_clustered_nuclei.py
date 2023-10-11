@@ -50,11 +50,7 @@ def main():
     if not options:
         return
     options.transferTo(gen, getOptionsMap())
-    gen.sample()
-    gen.createGroundTruthImage()
-    gen.groundTruthImage.show()
-    table = gen.getGroundTruthTable()
-    table.show("Random Nuclei Clustered Distribution")
+    gen.run()
 
 
 def getOptions():
@@ -86,8 +82,8 @@ def getOptionsMap():
                    'spotGenerator.calibration.unit': 'unit',
                    'spotGenerator.numberOfSamples': 'number',
                    'spotGenerator.mask': 'mask',
-                   'numberOfClusters': 'clusters',
-                   'maxDistFromClusterCenter': 'max.-dist.',
+                   'spotGenerator.numberOfClusters': 'clusters',
+                   'spotGenerator.maxDistFromClusterCenter': 'max.-dist.',
                    'xRadiusMean': 'mean_x_radius',
                    'xRadiusStddev': 'sdtDev_x_radius',
                    'yRadiusMean': 'mean_y_radius',
@@ -96,6 +92,9 @@ def getOptionsMap():
                    'saltAndPepper': 'pores',
                    'erosionRadius': 'erosion',
                    'nonOverlapping': 'non-overlapping',
+                   'batchProcess': 'batch',
+                   'outputFolder': 'output-folder',
+                   'numberOfImages': 'number-of-images',
                   }
     return optionsMap                          
                           

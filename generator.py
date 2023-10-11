@@ -57,7 +57,65 @@ from mcib3d.geom import Vector3D
 from mcib3d.geom import ObjectCreator3D
 
 
-class SpotGenerator(object):
+class Generator(object):
+    
+    
+    def __init__(self):
+        super(Generator, self).__init__()
+
+
+    def runBatch(self):
+        startTime = time.time()
+        IJ.log("Started batch " + self.getArtefactName() + " generation at " + str(datetime.datetime.fromtimestamp(startTime)))
+        if not os.path.exists(self.outputFolder):
+            os.makedirs(self.outputFolder)
+        imageBaseName = self.imageBaseName()
+        digits = len(str(self.numberOfImages))
+        for nrOfImage in range(1, self.numberOfImages + 1):
+            IJ.log("Creating image number " + str(nrOfImage) + " of " + str(self.numberOfImages))
+            self.sample()
+            self.createGroundTruthImage()
+            table = self.getGroundTruthTable()
+            imageName = imageBaseName + str(nrOfImage).zfill(digits)
+            path = os.path.join(self.outputFolder, imageName + '.tif')
+            IJ.log("Saving image number " + str(nrOfImage) + " of " + str(self.numberOfImages))
+            IJ.save(self.groundTruthImage, path)
+            table.save(os.path.join(self.outputFolder, imageName + '.xls'))
+        endTime = time.time()
+        IJ.log("Finished batch " + self.getArtefactName() + " generation at " + str(datetime.datetime.fromtimestamp(endTime)))
+        IJ.log("Duration: " + str(datetime.timedelta(seconds = endTime - startTime)))
+
+
+    def run(self):
+        startTime = time.time()
+        if self.batchProcess:
+            self.runBatch()
+            return
+        IJ.log("Started sampling " + self.getDistributionName() + " random " + self.getArtefactName() + " at " + str(datetime.datetime.fromtimestamp(startTime)))
+        self.sample()
+        self.createGroundTruthImage()
+        self.groundTruthImage.show()
+        table = self.getGroundTruthTable()
+        table.show("Random "+ self.getArtefactName().capitalize() + " " + self.getDistributionName() + " Distribution")
+        endTime = time.time()
+        IJ.log("Finished sampling " + self.getDistributionName() + " random " + self.getArtefactName() + " at " + str(datetime.datetime.fromtimestamp(endTime)))
+        IJ.log("Duration of calculation: " + str(datetime.timedelta(seconds = endTime - startTime)))
+
+
+    def imageBaseName(self):
+        return self.getDistributionName() + "_" + self.getArtifactName()
+        
+        
+    def getDistributionName(self):
+        return ""
+
+
+    def getArtifactName(self):
+        return ""  
+        
+        
+        
+class SpotGenerator(Generator):
 
 
     def __init__(self):
@@ -79,6 +137,10 @@ class SpotGenerator(object):
         self.numberOfImages = 100
        
 
+    def getArtefactName(self):
+        return "points"
+    
+    
     def sample(self):
         if self.mask:
             self.sampleInMask()
@@ -236,33 +298,7 @@ class SpotGenerator(object):
         self.calibration = Calibration()
         self.mask = None
         
-
-    def runBatch(self):
-        startTime = time.time()
-        IJ.log("Started batch point generation at " + str(datetime.datetime.fromtimestamp(startTime)))
-        if not os.path.exists(self.outputFolder):
-            os.makedirs(self.outputFolder)
-        imageBaseName = self.imageBaseName()
-        digits = len(str(self.numberOfImages))
-        for nrOfImage in range(1, self.numberOfImages + 1):
-            IJ.log("Creating image number " + str(nrOfImage) + " of " + str(self.numberOfImages))
-            self.sample()
-            self.createGroundTruthImage()
-            table = self.getGroundTruthTable()
-            imageName = imageBaseName + str(nrOfImage).zfill(digits)
-            path = os.path.join(self.outputFolder, imageName + '.tif')
-            IJ.log("Saving image number " + str(nrOfImage) + " of " + str(self.numberOfImages))
-            IJ.save(self.groundTruthImage, path)
-            table.save(os.path.join(self.outputFolder, imageName + '.xls'))
-        endTime = time.time()
-        IJ.log("Finished batch point generation at " + str(datetime.datetime.fromtimestamp(endTime)))
-        IJ.log("Duration: " + str(datetime.timedelta(seconds = endTime - startTime)))
-        
-                
-    def imageBaseName(self):
-        return "points"
-    
-    
+           
     
 class UniformRandomSpotGenerator(SpotGenerator):
 
@@ -287,9 +323,9 @@ class UniformRandomSpotGenerator(SpotGenerator):
                " uniformly distributed points from the " + str(N) + " points in the image.")
 
 
-    def imageBaseName(self):
-        return "uniform_points"
-
+    def getDistributionName(self):
+        return "uniform"
+    
 
 
 class DispersedRandomSpotGenerator(SpotGenerator):
@@ -325,9 +361,8 @@ class DispersedRandomSpotGenerator(SpotGenerator):
         IJ.log("Randomly selected " + str(len(self.points)) + " dispersed points from the " + str(N) + " points in the image with max. grid distance = " + str(self.maxDistFromGrid) + ".")               
 
 
-    def imageBaseName(self):
-        return "dispersed_points"
-        
+    def getDistributionName(self):
+        return "dispersed"        
         
 
 class ClusteredRandomSpotGenerator(SpotGenerator):
@@ -360,12 +395,12 @@ class ClusteredRandomSpotGenerator(SpotGenerator):
                " points in the image in " + str(len(self.clusterCenters)) + " clusters.")
 
 
-    def imageBaseName(self):
-        return "clustered_points"
+    def getDistributionName(self):
+        return "clustered"
 
 
 
-class NucleiGenerator(object):
+class NucleiGenerator(Generator):
 
 
     def __init__(self):
@@ -390,6 +425,10 @@ class NucleiGenerator(object):
         self.batchProcess = False
         self.outputFolder = None
         self.numberOfImages = 100
+        
+    
+    def getArtefactName(self):
+        return "nuclei"
         
         
     def getSpotGeneratorClass(self):
@@ -531,33 +570,7 @@ class NucleiGenerator(object):
         auxGenerator.spotGenerator.calibration = self.spotGenerator.calibration
         auxGenerator.spotGenerator.bitDepth = self.spotGenerator.bitDepth
         return auxGenerator
-    
-    
-    def runBatch(self):
-        startTime = time.time()
-        IJ.log("Started batch nuclei generation at " + str(datetime.datetime.fromtimestamp(startTime)))
-        if not os.path.exists(self.outputFolder):
-            os.makedirs(self.outputFolder)
-        imageBaseName = self.imageBaseName()
-        digits = len(str(self.numberOfImages))
-        for nrOfImage in range(1, self.numberOfImages + 1):
-            IJ.log("Creating image number " + str(nrOfImage) + " of " + str(self.numberOfImages))
-            self.sample()
-            self.createGroundTruthImage()
-            table = self.getGroundTruthTable()
-            imageName = imageBaseName + str(nrOfImage).zfill(digits)
-            path = os.path.join(self.outputFolder, imageName + '.tif')
-            IJ.log("Saving image number " + str(nrOfImage) + " of " + str(self.numberOfImages))
-            IJ.save(self.groundTruthImage, path)
-            table.save(os.path.join(self.outputFolder, imageName + '.xls'))
-        endTime = time.time()
-        IJ.log("Finished batch nuclei generation at " + str(datetime.datetime.fromtimestamp(endTime)))
-        IJ.log("Duration: " + str(datetime.timedelta(seconds = endTime - startTime)))
         
-        
-    def imageBaseName(self):
-        return "nuclei"    
-    
 
 
 class ClusteredRandomNucleiGenerator(NucleiGenerator):
@@ -577,8 +590,8 @@ class ClusteredRandomNucleiGenerator(NucleiGenerator):
         return auxGenerator
  
 
-    def imageBaseName(self):
-        return "clustered-nuclei"
+    def getDistributionName(self):
+        return "clustered"
         
         
  
@@ -593,8 +606,8 @@ class UniformRandomNucleiGenerator(NucleiGenerator):
         return UniformRandomSpotGenerator
  
  
-    def imageBaseName(self):
-        return "uniform-nuclei"
+    def getDistributionName(self):
+        return "uniform"
 
 
 
@@ -635,8 +648,8 @@ class DispersedRandomNucleiGenerator(NucleiGenerator):
         return auxGenerator
  
 
-    def imageBaseName(self):
-        return "dispersed-nuclei"
+    def getDistributionName(self):
+        return "dispersed"
  
  
  
