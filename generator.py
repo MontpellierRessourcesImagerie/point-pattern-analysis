@@ -387,6 +387,9 @@ class NucleiGenerator(object):
         self.nonOverlapping = False
         self.nuclei = []
         self.groundTruthImage = None
+        self.batchProcess = False
+        self.outputFolder = None
+        self.numberOfImages = 100
         
         
     def getSpotGeneratorClass(self):
@@ -493,7 +496,8 @@ class NucleiGenerator(object):
         self.removeTouchingNuclei()
         missing = self.numberOfSamples() - len(self.nuclei)
         trial = 0
-        while missing > 0 and trial < 10:
+        IJ.resetEscape()
+        while missing > 0 and trial < 10 and not IJ.escapePressed():
             IJ.log("resampling overlapping nuclei...: trial=" + str(trial+1) +" missing="+str(missing))
             auxGenerator = self.getAuxiliaryGenerator(missing)
             auxGenerator.sample()
@@ -521,10 +525,41 @@ class NucleiGenerator(object):
         auxGenerator = type(self)()
         auxGenerator.spotGenerator.mask = self.spotGenerator.mask
         auxGenerator.spotGenerator.numberOfSamples = numberOfSamples
+        auxGenerator.spotGenerator.width = self.spotGenerator.width
+        auxGenerator.spotGenerator.height = self.spotGenerator.height
+        auxGenerator.spotGenerator.depth = self.spotGenerator.depth
+        auxGenerator.spotGenerator.calibration = self.spotGenerator.calibration
+        auxGenerator.spotGenerator.bitDepth = self.spotGenerator.bitDepth
         return auxGenerator
     
     
+    def runBatch(self):
+        startTime = time.time()
+        IJ.log("Started batch nuclei generation at " + str(datetime.datetime.fromtimestamp(startTime)))
+        if not os.path.exists(self.outputFolder):
+            os.makedirs(self.outputFolder)
+        imageBaseName = self.imageBaseName()
+        digits = len(str(self.numberOfImages))
+        for nrOfImage in range(1, self.numberOfImages + 1):
+            IJ.log("Creating image number " + str(nrOfImage) + " of " + str(self.numberOfImages))
+            self.sample()
+            self.createGroundTruthImage()
+            table = self.getGroundTruthTable()
+            imageName = imageBaseName + str(nrOfImage).zfill(digits)
+            path = os.path.join(self.outputFolder, imageName + '.tif')
+            IJ.log("Saving image number " + str(nrOfImage) + " of " + str(self.numberOfImages))
+            IJ.save(self.groundTruthImage, path)
+            table.save(os.path.join(self.outputFolder, imageName + '.xls'))
+        endTime = time.time()
+        IJ.log("Finished batch nuclei generation at " + str(datetime.datetime.fromtimestamp(endTime)))
+        IJ.log("Duration: " + str(datetime.timedelta(seconds = endTime - startTime)))
+        
+        
+    def imageBaseName(self):
+        return "nuclei"    
     
+
+
 class ClusteredRandomNucleiGenerator(NucleiGenerator):
     
     
@@ -541,7 +576,11 @@ class ClusteredRandomNucleiGenerator(NucleiGenerator):
         auxGenerator.spotGenerator.clusterCenters = self.spotGenerator.clusterCenters
         return auxGenerator
  
- 
+
+    def imageBaseName(self):
+        return "clustered-nuclei"
+        
+        
  
 class UniformRandomNucleiGenerator(NucleiGenerator):
     
@@ -554,6 +593,10 @@ class UniformRandomNucleiGenerator(NucleiGenerator):
         return UniformRandomSpotGenerator
  
  
+    def imageBaseName(self):
+        return "uniform-nuclei"
+
+
 
 class DispersedRandomNucleiGenerator(NucleiGenerator):
     
@@ -590,6 +633,10 @@ class DispersedRandomNucleiGenerator(NucleiGenerator):
         auxGenerator = super(DispersedRandomNucleiGenerator, self).getAuxiliaryGenerator(numberOfSamples)
         auxGenerator.spotGenerator.maxDistFromGrid = 0        
         return auxGenerator
+ 
+
+    def imageBaseName(self):
+        return "dispersed-nuclei"
  
  
  

@@ -47,13 +47,16 @@ SAVE_OPTIONS = True
 
 
 def main():
-    startTime = time.time()
-    IJ.log("Started sampling uniform random nuclei at " + str(datetime.datetime.fromtimestamp(startTime)))
     gen = UniformRandomNucleiGenerator()
     options = getOptions()
     if not options:
         return
     options.transferTo(gen, getOptionsMap())
+    startTime = time.time()
+    IJ.log("Started sampling uniform random nuclei at " + str(datetime.datetime.fromtimestamp(startTime)))
+    if gen.batchProcess:
+        gen.runBatch()
+        return
     gen.sample()
     gen.createGroundTruthImage()
     gen.groundTruthImage.show()
@@ -100,6 +103,9 @@ def getOptionsMap():
                    'saltAndPepper': 'pores',
                    'erosionRadius': 'erosion',
                    'nonOverlapping': 'non-overlapping',
+                   'batchProcess': 'batch',
+                   'outputFolder': 'output-folder',
+                   'numberOfImages': 'number-of-images',
                   }
     return optionsMap                          
                           
