@@ -53,6 +53,9 @@ def main():
     if not options:
         return
     options.transferTo(gen, getOptionsMap())
+    if gen.batchProcess:
+        gen.runBatch()
+        return
     startTime = time.time()
     IJ.log("Started sampling at " + str(datetime.datetime.fromtimestamp(startTime)))
     gen.sample()
@@ -94,7 +97,10 @@ def getOptionsMap():
                    'numberOfSamples': 'number',
                    'mask': 'mask',
                    'numberOfClusters': 'clusters',
-                   'maxDistFromClusterCenter': 'max.-dist.'
+                   'maxDistFromClusterCenter': 'max.-dist.',
+                   'batchProcess': 'batch',
+                   'outputFolder': 'output-folder',
+                   'numberOfImages': 'number-of-images',
                   }
     return optionsMap    
     

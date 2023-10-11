@@ -53,6 +53,9 @@ def main():
     if not options:
         return
     options.transferTo(gen, getOptionsMap())
+    if gen.batchProcess:
+        gen.runBatch()
+        return
     startTime = time.time()
     IJ.log("Started sampling at " + str(datetime.datetime.fromtimestamp(startTime)))    
     gen.sample()
@@ -93,7 +96,10 @@ def getOptionsMap():
                    'calibration.unit': 'unit',
                    'numberOfSamples': 'number',
                    'mask': 'mask',
-                   'maxDistFromGrid': 'max.-dist.'
+                   'maxDistFromGrid': 'max.-dist.',
+                   'batchProcess': 'batch',
+                   'outputFolder': 'output-folder',
+                   'numberOfImages': 'number-of-images',
                   }
     return optionsMap  
     
