@@ -430,7 +430,7 @@ class NucleiGenerator(Generator):
         self.batchProcess = False
         self.outputFolder = None
         self.numberOfImages = 100
-        self.maxTrials = 20
+        self.maxTrials = 50
         
     
     def getArtefactName(self):

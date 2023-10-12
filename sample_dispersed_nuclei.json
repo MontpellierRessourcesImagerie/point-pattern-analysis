@@ -1,6 +1,6 @@
 {
     "helpUrl": "https://github.com/MontpellierRessourcesImagerie/point-pattern-analysis/wiki/3D_Synthetic_Spots", 
-    "title": "Sample Random Nuclei Options", 
+    "title": "Sample Dispersed Nuclei Options", 
     "elements": {
         "sdtDev_x_radius": {
             "conversions": null, 
@@ -8,9 +8,21 @@
             "defaultValue": 1.0, 
             "label": "StdDev. x-radius: ", 
             "type": "float", 
-            "value": 1.0, 
+            "sameRow": true, 
+            "value": 1.4, 
             "key": "sdtDev_x_radius", 
             "order": 13
+        }, 
+        "batch": {
+            "conversions": null, 
+            "helpText": "If checked all files in the selected folder will be processed", 
+            "defaultValue": false, 
+            "label": "Batch ", 
+            "type": "bool", 
+            "sameRow": false, 
+            "value": true, 
+            "key": "batch", 
+            "order": 22
         }, 
         "z-size": {
             "conversions": null, 
@@ -18,6 +30,7 @@
             "defaultValue": 0.7, 
             "label": "Z-size of voxel: ", 
             "type": "float", 
+            "sameRow": true, 
             "value": 0.7, 
             "key": "z-size", 
             "order": 6
@@ -32,6 +45,7 @@
             "defaultValue": "16-bit", 
             "label": "Type of Image: ", 
             "type": "choice", 
+            "sameRow": false, 
             "choices": [
                 "8-bit", 
                 "16-bit", 
@@ -47,7 +61,8 @@
             "defaultValue": 1.0, 
             "label": "StdDev. y-radius: ", 
             "type": "float", 
-            "value": 1.0, 
+            "sameRow": true, 
+            "value": 0.5, 
             "key": "sdtDev_y_radius", 
             "order": 16
         }, 
@@ -57,7 +72,8 @@
             "defaultValue": 1.0, 
             "label": "StdDev. z-radius: ", 
             "type": "float", 
-            "value": 1.0, 
+            "sameRow": true, 
+            "value": 0.5, 
             "key": "sdtDev_z_radius", 
             "order": 19
         }, 
@@ -67,7 +83,8 @@
             "defaultValue": 300, 
             "label": "Number Of Samples: ", 
             "type": "int", 
-            "value": 300, 
+            "sameRow": false, 
+            "value": 100, 
             "key": "number", 
             "order": 8
         }, 
@@ -77,6 +94,7 @@
             "defaultValue": false, 
             "label": "Non-Overlapping: ", 
             "type": "bool", 
+            "sameRow": false, 
             "value": true, 
             "key": "non-overlapping", 
             "order": 22
@@ -87,6 +105,7 @@
             "defaultValue": "microns", 
             "label": "Unit: ", 
             "type": "string", 
+            "sameRow": true, 
             "value": "microns", 
             "key": "unit", 
             "order": 7
@@ -97,121 +116,11 @@
             "defaultValue": 128, 
             "label": "Depth Of Image: ", 
             "type": "int", 
-            "value": 128, 
+            "sameRow": true, 
+            "value": 64, 
             "key": "depth", 
             "order": 3
         }, 
-        "mean_x_radius": {
-            "conversions": null, 
-            "helpText": "The mean radius along the x-axis of the nuclei", 
-            "defaultValue": 4.0, 
-            "label": "Mean x-radius: ", 
-            "type": "float", 
-            "value": 4.0, 
-            "key": "mean_x_radius", 
-            "order": 12
-        }, 
-        "width": {
-            "conversions": null, 
-            "helpText": "The width of the image", 
-            "defaultValue": 1024, 
-            "label": "Width Of Image: ", 
-            "type": "int", 
-            "value": 1024, 
-            "key": "width", 
-            "order": 1
-        }, 
-        "mean_z_radius": {
-            "conversions": null, 
-            "helpText": "The mean radius along the z-axis of the nuclei", 
-            "defaultValue": 4.0, 
-            "label": "Mean z-radius: ", 
-            "type": "float", 
-            "value": 4.0, 
-            "key": "mean_z_radius", 
-            "order": 16
-        }, 
-        "erosion": {
-            "conversions": null, 
-            "helpText": "The radius of the structuring element for the erosion used to simulated nuclear pores", 
-            "defaultValue": 1, 
-            "label": "erosion: ", 
-            "type": "int", 
-            "value": 1, 
-            "key": "erosion", 
-            "order": 21
-        }, 
-        "mean_y_radius": {
-            "conversions": null, 
-            "helpText": "The mean radius along the y-axis of the nuclei", 
-            "defaultValue": 4.0, 
-            "label": "Mean y-radius: ", 
-            "type": "float", 
-            "value": 4.0, 
-            "key": "mean_y_radius", 
-            "order": 14
-        }, 
-        "xy-size": {
-            "conversions": null, 
-            "helpText": "The voxel size in the xy-plane", 
-            "defaultValue": 0.2, 
-            "label": "XY-size of voxel: ", 
-            "type": "float", 
-            "value": 0.2, 
-            "key": "xy-size", 
-            "order": 5
-        }, 
-        "max.-dist.": {
-            "conversions": null, 
-            "helpText": "The maximal distance of a point from a grid point", 
-            "defaultValue": 90.0, 
-            "label": "Max.-Dist. from grid: ", 
-            "type": "float", 
-            "value": 30.0, 
-            "key": "max.-dist.", 
-            "order": 11
-        }, 
-        "pores": {
-            "conversions": null, 
-            "helpText": "The amount of salt and pepper noise used to simulated nuclear pores", 
-            "defaultValue": 1, 
-            "label": "pores: ", 
-            "type": "int", 
-            "value": 1, 
-            "key": "pores", 
-            "order": 20
-        }, 
-        "height": {
-            "conversions": null, 
-            "helpText": "The height of the image", 
-            "defaultValue": 1024, 
-            "label": "Height Of Image: ", 
-            "type": "int", 
-            "value": 1024, 
-            "key": "height", 
-            "order": 2
-        }, 
-        "mask": {
-            "conversions": null, 
-            "helpText": "The mask defining the region in which the points will be sampled", 
-            "defaultValue": null, 
-            "label": "Mask: ", 
-            "type": "image-choice", 
-            "value": null, 
-            "key": "mask", 
-            "order": 9
-        },
-        "batch": {
-            "conversions": null, 
-            "helpText": "If checked all files in the selected folder will be processed", 
-            "defaultValue": false, 
-            "label": "Batch ", 
-            "type": "bool", 
-            "sameRow": false, 
-            "value": false, 
-            "key": "batch", 
-            "order": 22
-        },
         "number-of-images": {
             "conversions": null, 
             "helpText": "The number of images that will be created", 
@@ -222,7 +131,73 @@
             "value": 100, 
             "key": "number-of-images", 
             "order": 23
-        },
+        }, 
+        "mean_x_radius": {
+            "conversions": null, 
+            "helpText": "The mean radius along the x-axis of the nuclei", 
+            "defaultValue": 4.0, 
+            "label": "Mean x-radius: ", 
+            "type": "float", 
+            "sameRow": false, 
+            "value": 4.0, 
+            "key": "mean_x_radius", 
+            "order": 12
+        }, 
+        "width": {
+            "conversions": null, 
+            "helpText": "The width of the image", 
+            "defaultValue": 1024, 
+            "label": "Width Of Image: ", 
+            "type": "int", 
+            "sameRow": false, 
+            "value": 1030, 
+            "key": "width", 
+            "order": 1
+        }, 
+        "mean_z_radius": {
+            "conversions": null, 
+            "helpText": "The mean radius along the z-axis of the nuclei", 
+            "defaultValue": 4.0, 
+            "label": "Mean z-radius: ", 
+            "type": "float", 
+            "sameRow": false, 
+            "value": 3.0, 
+            "key": "mean_z_radius", 
+            "order": 16
+        }, 
+        "erosion": {
+            "conversions": null, 
+            "helpText": "The radius of the structuring element for the erosion used to simulated nuclear pores", 
+            "defaultValue": 1, 
+            "label": "erosion: ", 
+            "type": "int", 
+            "sameRow": false, 
+            "value": 1, 
+            "key": "erosion", 
+            "order": 21
+        }, 
+        "mean_y_radius": {
+            "conversions": null, 
+            "helpText": "The mean radius along the y-axis of the nuclei", 
+            "defaultValue": 4.0, 
+            "label": "Mean y-radius: ", 
+            "type": "float", 
+            "sameRow": false, 
+            "value": 3.0, 
+            "key": "mean_y_radius", 
+            "order": 14
+        }, 
+        "xy-size": {
+            "conversions": null, 
+            "helpText": "The voxel size in the xy-plane", 
+            "defaultValue": 0.2, 
+            "label": "XY-size of voxel: ", 
+            "type": "float", 
+            "sameRow": false, 
+            "value": 0.12, 
+            "key": "xy-size", 
+            "order": 5
+        }, 
         "output-folder": {
             "conversions": null, 
             "helpText": "The folder into which the result images will be written", 
@@ -230,9 +205,53 @@
             "label": "Output Folder: ", 
             "type": "directory", 
             "sameRow": true, 
-            "value": "/home/baecker/Documents/mri/2023/mifobio/experiments/A01-spot-detection/", 
+            "value": "/home/baecker/Documents/mri/2023/mifobio/experiments/A02-nuclei-segmentation/dispersed/", 
             "key": "output-folder", 
             "order": 24
+        }, 
+        "max.-dist.": {
+            "conversions": null, 
+            "helpText": "The maximal distance of a point from a grid point", 
+            "defaultValue": 90.0, 
+            "label": "Max.-Dist. from grid: ", 
+            "type": "float", 
+            "sameRow": false, 
+            "value": 30.0, 
+            "key": "max.-dist.", 
+            "order": 11
+        }, 
+        "pores": {
+            "conversions": null, 
+            "helpText": "The amount of salt and pepper noise used to simulated nuclear pores", 
+            "defaultValue": 1, 
+            "label": "pores: ", 
+            "type": "int", 
+            "sameRow": false, 
+            "value": 1, 
+            "key": "pores", 
+            "order": 20
+        }, 
+        "height": {
+            "conversions": null, 
+            "helpText": "The height of the image", 
+            "defaultValue": 1024, 
+            "label": "Height Of Image: ", 
+            "type": "int", 
+            "sameRow": true, 
+            "value": 1030, 
+            "key": "height", 
+            "order": 2
+        }, 
+        "mask": {
+            "conversions": null, 
+            "helpText": "The mask defining the region in which the points will be sampled", 
+            "defaultValue": null, 
+            "label": "Mask: ", 
+            "type": "image-choice", 
+            "sameRow": false, 
+            "value": null, 
+            "key": "mask", 
+            "order": 9
         }
     }
 }
