@@ -388,13 +388,18 @@ class ClusteredRandomSpotGenerator(SpotGenerator):
         N = self.width * self.height * self.depth
         sampleIndices = random.sample(xrange(N), self.numberOfClusters)
         self.clusterCenters = self.indicesToCoordinates(sampleIndices)
+        self.selectAndMovePoints()
+
+    
+    def selectAndMovePoints(self):
+        N = self.width * self.height * self.depth
         self.points = [random.choice(self.clusterCenters) for _ in range(self.numberOfSamples)]
         self.addRandomShiftToPoints(self.maxDistFromClusterCenter)
         IJ.log("Randomly selected " + str(len(self.points)) + 
                " clustered points from the " + str(N) + 
                " points in the image in " + str(len(self.clusterCenters)) + " clusters.")
-
-
+    
+    
     def getDistributionName(self):
         return "clustered"
 
@@ -425,6 +430,7 @@ class NucleiGenerator(Generator):
         self.batchProcess = False
         self.outputFolder = None
         self.numberOfImages = 100
+        self.maxTrials = 20
         
     
     def getArtefactName(self):
@@ -536,7 +542,7 @@ class NucleiGenerator(Generator):
         missing = self.numberOfSamples() - len(self.nuclei)
         trial = 0
         IJ.resetEscape()
-        while missing > 0 and trial < 10 and not IJ.escapePressed():
+        while missing > 0 and trial < self.maxTrials and not IJ.escapePressed():
             IJ.log("resampling overlapping nuclei...: trial=" + str(trial+1) +" missing="+str(missing))
             auxGenerator = self.getAuxiliaryGenerator(missing)
             auxGenerator.sample()
@@ -593,7 +599,25 @@ class ClusteredRandomNucleiGenerator(NucleiGenerator):
     def getDistributionName(self):
         return "clustered"
         
-        
+    
+    def makeNonOverlapping(self):
+        clusterCenters = self.spotGenerator.clusterCenters
+        self.removeTouchingNuclei()
+        missing = self.numberOfSamples() - len(self.nuclei)
+        trial = 0
+        IJ.resetEscape()
+        while missing > 0 and trial < self.maxTrials and not IJ.escapePressed():
+            IJ.log("resampling overlapping nuclei...: trial=" + str(trial+1) +" missing="+str(missing))
+            auxGenerator = self.getAuxiliaryGenerator(missing)
+            auxGenerator.spotGenerator.selectAndMovePoints()
+            auxGenerator.sampleShapes()
+            self.nuclei = self.nuclei + auxGenerator.nuclei
+            self.removeTouchingNuclei()
+            missing = self.numberOfSamples() - len(self.nuclei)            
+            trial = trial + 1
+        self.createGroundTruthImage()
+            
+            
  
 class UniformRandomNucleiGenerator(NucleiGenerator):
     
@@ -629,7 +653,8 @@ class DispersedRandomNucleiGenerator(NucleiGenerator):
         touchingNuclei = self.getTouchingNuclei()
         missing = len(touchingNuclei)
         trial = 0
-        while missing > 0 and trial < 10:
+        IJ.resetEscape()
+        while missing > 0 and trial < self.maxTrials and not IJ.escapePressed():
             IJ.log("resampling overlapping nuclei...: trial=" + str(trial+1) +" missing="+str(missing))
             for nucleusIndex in touchingNuclei:
                 point = gridSamples[nucleusIndex]
