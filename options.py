@@ -200,7 +200,15 @@ class Options(ActionListener):
     
     
     def recordAndReport(self, command, img):
+        self.report()
+        self.record(command, img)
+            
+    
+    def report(self):
         IJ.log(self.getOptionsStr())
+    
+    
+    def record(self, command, img):
         macro = img.getProp("mri-cia.macro")
         if not macro:
             macro = ""
@@ -209,7 +217,7 @@ class Options(ActionListener):
         command = 'run("' + command + '", "' + self.getOptionsRepr() + '");'        
         macro = macro + command
         img.setProp("mri-cia.macro", macro)
-            
+    
     
     def __str__(self):
         return self.__repr__()

@@ -1,10 +1,17 @@
 from __future__ import division
+import os
 import math
+import time
+import datetime
 from ij import IJ
+from ij.process import LUT 
 from ij.process import ImageConverter
 from ij.plugin import Duplicator
 from ij.plugin import GaussianBlur3D
 from ij.plugin import Binner
+from ij.plugin import LutLoader
+from loci.formats import ImageReader
+from loci.plugins import BF
 from imagescience.random import Randomizer  # For photon noise
 from imagescience.image import Image        # Needed by Randomizer
 
@@ -46,8 +53,60 @@ class Microscope:
         self.bitDepth = 16
         self.maxPhotonEmission = 10
         self.binning = 1                # 1 means no binning
-                                  
-                                                    
+        self.batchProcess = False
+        self.outputFolder = None                    
+        self.inputFolder = None                    
+        
+        
+    def run(self, img, options=None, display=True):
+        startTime = time.time()
+        IJ.log("Started acquiring image at " + str(datetime.datetime.fromtimestamp(startTime)))
+        if options:
+            options.recordAndReport("simulate microscope", img)
+        self.mountSample(img)
+        self.acquireImage()
+        lut = LUT(LutLoader.getLut( "Grays" ), 0, 255)
+        self.image.getChannelProcessor().setLut(lut)
+        self.image.resetDisplayRange()
+        if display:
+            self.image.show()
+        endTime = time.time()
+        IJ.log("Finished acquiring image at " + str(datetime.datetime.fromtimestamp(endTime)))
+        IJ.log("Duration of calculation: " + str(datetime.timedelta(seconds = endTime - startTime)))
+    
+    
+    def runBatch(self, options=None):
+        startTime = time.time()
+        IJ.log("Started batch simulate microscope at " + str(datetime.datetime.fromtimestamp(startTime)))
+        if not os.path.exists(self.inputFolder):
+            IJ.log("Could not access the input folder: " + self.inputFolder)
+        if not os.path.exists(self.outputFolder):
+            os.makedirs(self.outputFolder)
+        imagePaths = [os.path.join(self.inputFolder, f) for f in os.listdir(self.inputFolder) if os.path.isfile(os.path.join(self.inputFolder, f)) and self.isImage(os.path.join(self.inputFolder, f))]
+        numberOfImages = len(imagePaths)        
+        for nrOfImage, imagePath in enumerate(imagePaths, 1):
+            IJ.log("Acquiring image number " + str(nrOfImage) + " of " + str(numberOfImages))
+            image = BF.openImagePlus(imagePath)[0]
+            self.run(image, options=options, display=False)
+            _, imageName = os.path.split(imagePath)          
+            path = os.path.join(self.outputFolder, imageName)
+            IJ.log("Saving image number " + str(nrOfImage) + " of " + str(numberOfImages))
+            IJ.save(self.image, path)
+        endTime = time.time()
+        IJ.log("Finished batch simulate microscope at " + str(datetime.datetime.fromtimestamp(endTime)))
+        IJ.log("Duration: " + str(datetime.timedelta(seconds = endTime - startTime)))
+
+    
+    def isImage(self, path):
+        baseReader = ImageReader()
+        readers = baseReader.getReaders()
+        rtype = None
+        for reader in readers:
+            if reader.isThisType(path):
+                rtype = reader        
+        return not rtype is None
+    
+    
     def mountSample(self, aPhantomImage):
         self.sample = aPhantomImage
         

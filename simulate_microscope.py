@@ -35,12 +35,9 @@
 ## 
 ################################################################################################
 
-import time
-import datetime
+
 from ij import IJ
 from ij import Prefs
-from ij.plugin import LutLoader
-from ij.process import LUT 
 from fr.cnrs.mri.cialib.imaging import Microscope
 from fr.cnrs.mri.cialib.options import Options
 
@@ -54,19 +51,11 @@ def main():
     if not options:
         return
     options.transferTo(mic, getOptionsMap())
-    startTime = time.time()
-    IJ.log("Started acquiring image at " + str(datetime.datetime.fromtimestamp(startTime)))
-    img = IJ.getImage()
-    options.recordAndReport("simulate microscope", img)
-    mic.mountSample(img)
-    mic.acquireImage()
-    lut = LUT(LutLoader.getLut( "Grays" ), 0, 255)
-    mic.image.getChannelProcessor().setLut(lut)
-    mic.image.resetDisplayRange()
-    mic.image.show()
-    endTime = time.time()
-    IJ.log("Finished acquiring image at " + str(datetime.datetime.fromtimestamp(endTime)))
-    IJ.log("Duration of calculation: " + str(datetime.timedelta(seconds = endTime - startTime)))
+    if mic.batchProcess:
+        mic.runBatch(options = options)
+        return
+    img = IJ.getImage()    
+    mic.run(img, options, display = True)
     
   
 def getOptions():
@@ -98,8 +87,11 @@ def getOptionsMap():
                    'detectorOffset': 'offset',
                    'bitDepth': 'bit',
                    'maxPhotonEmission': 'max._photon',
-                   'binning': 'binning'
-                      }
+                   'binning': 'binning',
+                   'batchProcess': 'batch',
+                   'inputFolder': 'input-folder',
+                   'outputFolder': 'output-folder',
+                  }
     return optionsMap
    
    

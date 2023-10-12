@@ -9,7 +9,7 @@
             "label": "Batch ", 
             "type": "bool", 
             "sameRow": false, 
-            "value": true, 
+            "value": false, 
             "key": "batch", 
             "order": 10
         }, 
@@ -20,7 +20,7 @@
             "label": "Z-size of voxel: ", 
             "type": "float", 
             "sameRow": true, 
-            "value": 5.0, 
+            "value": 0.3, 
             "key": "z-size", 
             "order": 6
         }, 
@@ -84,7 +84,7 @@
             "label": "Depth Of Image: ", 
             "type": "int", 
             "sameRow": true, 
-            "value": 64, 
+            "value": 50, 
             "key": "depth", 
             "order": 3
         }, 
@@ -95,7 +95,7 @@
             "label": "Width Of Image: ", 
             "type": "int", 
             "sameRow": false, 
-            "value": 512, 
+            "value": 1300, 
             "key": "width", 
             "order": 1
         }, 
@@ -106,7 +106,7 @@
             "label": "XY-size of voxel: ", 
             "type": "float", 
             "sameRow": false, 
-            "value": 64.0, 
+            "value": 0.067, 
             "key": "xy-size", 
             "order": 5
         }, 
@@ -128,7 +128,7 @@
             "label": "Height Of Image: ", 
             "type": "int", 
             "sameRow": true, 
-            "value": 512, 
+            "value": 1300, 
             "key": "height", 
             "order": 2
         }, 
