@@ -18,6 +18,11 @@ from imagescience.image import Image        # Needed by Randomizer
 
 # Inspired by https://petebankhead.gitbooks.io/imagej-intro/content/chapters/macro_simulating/macro_simulating.html?q=
 
+def split(list_a, chunk_size):
+  for i in range(0, len(list_a), chunk_size):
+    yield list_a[i:i + chunk_size]
+    
+    
 
 class Gaussian:
     

@@ -119,7 +119,7 @@
             "label": "Input Folder: ", 
             "type": "directory", 
             "sameRow": false, 
-            "value": "/home/baecker/Documents/mri/2023/mifobio/experiments/A01-spot-detection/uniform/", 
+            "value": "/home/baecker/Documents/mri/2023/mifobio/experiments/A01-spot-detection/clustered/", 
             "key": "input-folder", 
             "order": 21
         }, 
@@ -174,7 +174,7 @@
             "label": "Output Folder: ", 
             "type": "directory", 
             "sameRow": false, 
-            "value": "/home/baecker/Documents/mri/2023/mifobio/experiments/A01-spot-detection/uniform/acqjuired/", 
+            "value": "/home/baecker/Documents/mri/2023/mifobio/experiments/A01-spot-detection/clustered/acquired/", 
             "key": "output-folder", 
             "order": 22
         }

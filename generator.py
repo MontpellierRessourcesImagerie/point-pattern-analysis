@@ -39,6 +39,10 @@ import math
 import os
 import time
 import datetime
+from java.lang import Runtime
+from java.lang import Thread
+from java.lang import Runnable
+from copy import deepcopy
 from ij import IJ
 from ij.gui import NewImage
 from ij.measure import Calibration
@@ -57,6 +61,13 @@ from mcib3d.geom import Vector3D
 from mcib3d.geom import ObjectCreator3D
 
 
+
+def split(aList, numberOfChunks):
+    size = math.ceil(len(aList) / numberOfChunks)
+    return list(map(lambda x: lst[x * size:x * size + size], list(range(numberOfChunks))))
+    
+    
+    
 class Generator(object):
     
     
@@ -86,10 +97,30 @@ class Generator(object):
         IJ.log("Duration: " + str(datetime.timedelta(seconds = endTime - startTime)))
 
 
+    def runBatchMT(self):
+        startTime = time.time()
+        IJ.log("Started batch " + self.getArtefactName() + " generation at " + str(datetime.datetime.fromtimestamp(startTime)))
+        if not os.path.exists(self.outputFolder):
+            os.makedirs(self.outputFolder)
+        numberOfCores = Runtime.getRuntime().availableProcessors()
+        taskGroups = split(list(range(1, self.numberOfImages + 1)), numberOfCores)
+        threads = []
+        for taskGroup in taskGroups:
+            batchGen = BatchGeneratorThread(self, taskGroup)
+            thread = Thread(batchGen)
+            threads.append(thread)
+            thread.start()
+        for thread in threads:
+            thread.join()         
+        endTime = time.time()
+        IJ.log("Finished batch " + self.getArtefactName() + " generation at " + str(datetime.datetime.fromtimestamp(endTime)))
+        IJ.log("Duration: " + str(datetime.timedelta(seconds = endTime - startTime)))
+
+
     def run(self):
         startTime = time.time()
         if self.batchProcess:
-            self.runBatch()
+            self.runBatchMT()
             return
         IJ.log("Started sampling " + self.getDistributionName() + " random " + self.getArtefactName() + " at " + str(datetime.datetime.fromtimestamp(startTime)))
         self.sample()
@@ -103,14 +134,14 @@ class Generator(object):
 
 
     def imageBaseName(self):
-        return self.getDistributionName() + "_" + self.getArtifactName()
+        return self.getDistributionName() + "_" + self.getArtefactName()
         
         
     def getDistributionName(self):
         return ""
 
 
-    def getArtifactName(self):
+    def getArtefactName(self):
         return ""  
         
         
@@ -137,6 +168,23 @@ class SpotGenerator(Generator):
         self.numberOfImages = 100
        
 
+    def newInstanceWithSameParameters(self):
+        newInstance = self.__class__()
+        newInstance.width = self.width
+        newInstance.height = self.height
+        newInstance.depth = self.depth
+        newInstance.calibration.pixelWidth = self.calibration.pixelWidth
+        newInstance.calibration.pixelHeight = self.calibration.pixelHeight
+        newInstance.calibration.pixelDepth = self.calibration.pixelDepth
+        newInstance.calibration.unit = self.calibration.unit
+        newInstance.bitDepth = self.bitDepth
+        newInstance.numberOfSamples = self.numberOfSamples
+        newInstance.batchProcess = self.batchProcess
+        newInstance.outputFolder = self.outputFolder
+        newInstance.numberOfImages = self.numberOfImages
+        return newInstance
+        
+    
     def getArtefactName(self):
         return "points"
     
@@ -335,7 +383,13 @@ class DispersedRandomSpotGenerator(SpotGenerator):
         super(DispersedRandomSpotGenerator, self).__init__()
         self.maxDistFromGrid = 0
         
-
+        
+    def newInstanceWithSameParameters(self):
+        newInstance = super(DispersedRandomSpotGenerator, self).newInstanceWithSameParameters()
+        newInstance.maxDistFromGrid = self.maxDistFromGrid
+        return newInstance
+    
+    
     def sample(self):
         super(DispersedRandomSpotGenerator, self).sample()
         if self.maxDistFromGrid:
@@ -375,6 +429,14 @@ class ClusteredRandomSpotGenerator(SpotGenerator):
         self.clusterCenters = None  
     
     
+    def newInstanceWithSameParameters(self):
+        newInstance = super(ClusteredRandomSpotGenerator, self).newInstanceWithSameParameters()
+        newInstance.numberOfClusters = self.numberOfClusters
+        newInstance.maxDistFromClusterCenter = self.maxDistFromClusterCenter
+        newInstance.clusterCenters = self.clusterCenters
+        return newInstance
+        
+        
     def sampleInMask(self):
         points = self.getPointsInMask()
         self.clusterCenters = random.sample(points, self.numberOfClusters)
@@ -433,6 +495,25 @@ class NucleiGenerator(Generator):
         self.maxTrials = 50
         
     
+    def newInstanceWithSameParameters(self):
+        newInstance = self.__class__()
+        newInstance.spotGenerator = self.spotGenerator.newInstanceWithSameParameters()
+        newInstance.xRadiusMean = self.xRadiusMean 
+        newInstance.xRadiusStddev = self.xRadiusStddev
+        newInstance.yRadiusMean = self.yRadiusMean 
+        newInstance.yRadiusStddev = self.yRadiusStddev
+        newInstance.zRadiusMean = self.zRadiusMean 
+        newInstance.zRadiusStddev = self.zRadiusStddev
+        newInstance.saltAndPepper = self.saltAndPepper
+        newInstance.erosionRadius = self.erosionRadius
+        newInstance.nonOverlapping = self.nonOverlapping
+        newInstance.maxTrials = self.maxTrials
+        newInstance.batchProcess = self.batchProcess
+        newInstance.outputFolder = self.outputFolder
+        newInstance.numberOfImages = self.numberOfImages
+        return newInstance
+        
+        
     def getArtefactName(self):
         return "nuclei"
         
@@ -785,4 +866,29 @@ class Nucleus:
         reprString = u"" + self.__class__.__name__ + "(p=" + str(self.position) + ", r="+str(roundedRadius)+", o="+str(self.orientation) +")"
         reprString = reprString.encode('ascii',errors='ignore')
         return reprString
+        
+        
+        
+class BatchGeneratorThread(Runnable):
+
+
+    def __init__(self, generator, tasks):
+        super(BatchGeneratorThread, self).__init__()
+        self.generator = generator.newInstanceWithSameParameters()
+        self.tasks = tasks
+
+        
+    def run(self):
+        imageBaseName = self.generator.imageBaseName()
+        digits = len(str(self.generator.numberOfImages))
+        for index, nrOfImage in enumerate(self.tasks, 1):
+            IJ.log("Creating image number " + str(index) + " of " + str(len(self.tasks)))
+            self.generator.sample()
+            self.generator.createGroundTruthImage()
+            table = self.generator.getGroundTruthTable()
+            imageName = imageBaseName + str(nrOfImage).zfill(digits)
+            path = os.path.join(self.generator.outputFolder, imageName + '.tif')
+            IJ.log("Saving image number " + str(index) + " of " + str(len(self.tasks)))
+            IJ.save(self.generator.groundTruthImage, path)
+            table.save(os.path.join(self.generator.outputFolder, imageName + '.xls'))    
         
