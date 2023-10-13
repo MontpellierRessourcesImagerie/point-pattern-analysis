@@ -52,7 +52,7 @@ def main():
         return
     options.transferTo(mic, getOptionsMap())
     if mic.batchProcess:
-        mic.runBatch(options = options)
+        mic.runBatchMT(options)
         return
     img = IJ.getImage()    
     mic.run(img, options, display = True)

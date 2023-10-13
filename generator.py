@@ -42,7 +42,6 @@ import datetime
 from java.lang import Runtime
 from java.lang import Thread
 from java.lang import Runnable
-from copy import deepcopy
 from ij import IJ
 from ij.gui import NewImage
 from ij.measure import Calibration

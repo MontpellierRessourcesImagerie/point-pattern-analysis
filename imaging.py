@@ -3,6 +3,10 @@ import os
 import math
 import time
 import datetime
+from copy import deepcopy
+from java.lang import Runtime
+from java.lang import Thread
+from java.lang import Runnable
 from ij import IJ
 from ij.process import LUT 
 from ij.process import ImageConverter
@@ -18,12 +22,12 @@ from imagescience.image import Image        # Needed by Randomizer
 
 # Inspired by https://petebankhead.gitbooks.io/imagej-intro/content/chapters/macro_simulating/macro_simulating.html?q=
 
-def split(list_a, chunk_size):
-  for i in range(0, len(list_a), chunk_size):
-    yield list_a[i:i + chunk_size]
-    
-    
+def split(aList, numberOfChunks):
+    size = int(math.ceil(len(aList) / numberOfChunks))
+    return list(map(lambda x: aList[x * size:x * size + size], list(range(numberOfChunks))))
 
+    
+    
 class Gaussian:
     
     
@@ -102,6 +106,29 @@ class Microscope:
         IJ.log("Duration: " + str(datetime.timedelta(seconds = endTime - startTime)))
 
     
+    def runBatchMT(self, options):
+        startTime = time.time()
+        IJ.log("Started batch simulate microscope at " + str(datetime.datetime.fromtimestamp(startTime)))
+        if not os.path.exists(self.inputFolder):
+            IJ.log("Could not access the input folder: " + self.inputFolder)
+        if not os.path.exists(self.outputFolder):
+            os.makedirs(self.outputFolder)
+        imagePaths = [os.path.join(self.inputFolder, f) for f in os.listdir(self.inputFolder) if os.path.isfile(os.path.join(self.inputFolder, f)) and self.isImage(os.path.join(self.inputFolder, f))]
+        numberOfCores = Runtime.getRuntime().availableProcessors()
+        taskGroups = split(imagePaths, numberOfCores)
+        threads = []
+        for taskGroup in taskGroups:
+            batchMic = BatchMicroscopeThread(self, taskGroup, options)
+            thread = Thread(batchMic)
+            threads.append(thread)
+            thread.start()
+        for thread in threads:
+            thread.join()         
+        endTime = time.time()
+        IJ.log("Finished batch simulate microscope at " + str(datetime.datetime.fromtimestamp(endTime)))
+        IJ.log("Duration: " + str(datetime.timedelta(seconds = endTime - startTime)))
+    
+     
     def isImage(self, path):
         baseReader = ImageReader()
         readers = baseReader.getReaders()
@@ -239,3 +266,24 @@ class Microscope:
                 pixels[p] = round(pixels[p])
             stack.setPixels(pixels, i)
             
+            
+            
+class BatchMicroscopeThread(Runnable):
+
+
+    def __init__(self, microscope, tasks, options):
+        self.microscope = deepcopy(microscope)
+        self.options = options
+        self.tasks = tasks
+        
+        
+    def run(self):
+        numberOfImages = len(self.tasks)
+        for nrOfImage, imagePath in enumerate(self.tasks, 1):
+            IJ.log("Acquiring image number " + str(nrOfImage) + " of " + str(numberOfImages))
+            image = BF.openImagePlus(imagePath)[0]
+            self.microscope.run(image, options=self.options, display=False)
+            _, imageName = os.path.split(imagePath)          
+            path = os.path.join(self.microscope.outputFolder, imageName)
+            IJ.log("Saving image number " + str(nrOfImage) + " of " + str(numberOfImages))
+            IJ.save(self.microscope.image, path)    
