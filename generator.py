@@ -63,8 +63,8 @@ from mcib3d.geom import ObjectCreator3D
 
 
 def split(aList, numberOfChunks):
-    size = math.ceil(len(aList) / numberOfChunks)
-    return list(map(lambda x: lst[x * size:x * size + size], list(range(numberOfChunks))))
+    size = int(math.ceil(len(aList) / numberOfChunks))
+    return list(map(lambda x: aList[x * size:x * size + size], list(range(numberOfChunks))))
     
     
     
