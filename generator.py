@@ -655,6 +655,14 @@ class NucleiGenerator(Generator):
         auxGenerator.spotGenerator.depth = self.spotGenerator.depth
         auxGenerator.spotGenerator.calibration = self.spotGenerator.calibration
         auxGenerator.spotGenerator.bitDepth = self.spotGenerator.bitDepth
+        auxGenerator.xRadiusMean = self.xRadiusMean        
+        auxGenerator.xRadiusStddev = self.xRadiusStddev
+        auxGenerator.yRadiusMean = self.yRadiusMean         
+        auxGenerator.yRadiusStddev = self.yRadiusStddev
+        auxGenerator.zRadiusMean = self.zRadiusMean         
+        auxGenerator.zRadiusStddev = self.zRadiusStddev
+        auxGenerator.saltAndPepper = self.saltAndPepper
+        auxGenerator.erosionRadius = self.erosionRadius
         return auxGenerator
         
 
