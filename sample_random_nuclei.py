@@ -88,6 +88,7 @@ def getOptionsMap():
                    'yRadiusMean': 'mean_y_radius',
                    'yRadiusStddev': 'sdtDev_y_radius',
                    'zRadiusMean': 'mean_z_radius',
+                   'zRadiusStddev': 'sdtDev_z_radius',
                    'saltAndPepper': 'pores',
                    'erosionRadius': 'erosion',
                    'nonOverlapping': 'non-overlapping',
