@@ -1,0 +1,39 @@
+{
+    "helpUrl": "https://github.com/MontpellierRessourcesImagerie/point-pattern-analysis/wiki/3D_Synthetic_Spots", 
+    "title": "Detect Spots Options", 
+    "elements": {
+        "z-diameter": {
+            "conversions": null, 
+            "helpText": "The diameter of the spots along the z-axis", 
+            "defaultValue": 4.0, 
+            "label": "z-diameter: ", 
+            "type": "float", 
+            "sameRow": true, 
+            "value": 4.0, 
+            "key": "z-diameter", 
+            "order": 2
+        }, 
+        "xy-diameter": {
+            "conversions": null, 
+            "helpText": "The diameter of the spots in the xy-plane", 
+            "defaultValue": 5.0, 
+            "label": "xy-diameter: ", 
+            "type": "float", 
+            "sameRow": false, 
+            "value": 4.0, 
+            "key": "xy-diameter", 
+            "order": 1
+        }, 
+        "prominence": {
+            "conversions": null, 
+            "helpText": "The prominence of the spot from the background", 
+            "defaultValue": 4.0, 
+            "label": "Prominence: ", 
+            "type": "float", 
+            "sameRow": false, 
+            "value": 4.0, 
+            "key": "prominence", 
+            "order": 3
+        }
+    }
+}
