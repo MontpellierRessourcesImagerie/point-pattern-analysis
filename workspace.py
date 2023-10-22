@@ -24,11 +24,19 @@ strel = BallStrel.fromRadius(2)
 labelsStack = strel.dilation(labelsStack)
 resImage = ImagePlus("labels", labelsStack)
 resImage.getChannelProcessor().setLut(lut)
-resImage.resetDisplayRange()
+resImage.setDisplayRange(0, len(detector.spots))
 rois = []
-for i in range(1, labelsStack.getSize()+1):
-    roi = ImageRoi(roi.getBounds().x, roi.getBounds().y, labelsStack.getProcessor(i))
+x = 0
+y = 0
+if roi:
+    x = roi.getBounds().x
+    y = roi.getBounds().y
+for i in range(1, resImage.getStack().getSize()+1):
+    roi = ImageRoi(x, y, resImage.getStack().getProcessor(i))
+    roi.setOpacity(75)
+    roi.setZeroTransparent(True)
     rois.append(roi)
 overlay = Overlay.createStackOverlay(rois)
+overlay.translate(x, y)
 image.setOverlay(overlay)
 
