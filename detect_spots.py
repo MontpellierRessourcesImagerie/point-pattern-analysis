@@ -1,13 +1,49 @@
+from ij import IJ
+from ij import Prefs
 from fr.cnrs.mri.cialib.options import Options
 from fr.cnrs.mri.cialib.detection import SpotDetectionPlugInFilter
-from ij.plugin.filter import PlugInFilterRunner
 
 
-options = Options.fromFile("/home/baecker/Documents/mri/2023/mifobio/point-pattern-analysis/detect_spots.json");
-options.createDialog()
-detector = SpotDetectionPlugInFilter()
-options.dialog.addDialogListener(detector)
-runner = PlugInFilterRunner(detector, "detect spots", str(options))
-options.dialog.addPreviewCheckbox(runner) 
-print("show dialog")
-options.dialog.showDialog()
+SAVE_OPTIONS = True
+
+
+def main():
+    img = IJ.getImage()
+    plugin = SpotDetectionPlugInFilter()
+    options = getOptions(plugin)
+    if not options:
+        return
+    plugin.spotDetector.run(img)    
+    plugin.spotDetector.spotImage.show()
+    
+
+def getOptions(plugin):
+    options = Options.fromFile(getOptionsPath())
+    options.autosave = SAVE_OPTIONS
+    optionsOnly = Prefs.get("mri.options.only", "false")
+    options.addPreviewPlugin(plugin, "detect spots")
+    options.transferTo(plugin, getOptionsMap())
+    options = options.showDialog()
+    if not options:
+        return None
+    if optionsOnly=="true":
+        return None
+    return options
+    
+
+def getOptionsPath():
+    pluginsPath = IJ.getDirectory("plugins")
+    optionsPath = pluginsPath + "3D_Synthetic_Spots/detect_spots.json"
+    return optionsPath
+    
+
+def getOptionsMap():        
+    optionsMap = {'spotDetector.spotDiameterXY': 'xy-diameter', 
+                  'spotDetector.spotDiameterZ': 'z-diameter',   
+                  'spotDetector.prominence': 'prominence', 
+                  'spotDetector.threshold': 'threshold'
+                  }
+    return optionsMap
+    
+    
+main()

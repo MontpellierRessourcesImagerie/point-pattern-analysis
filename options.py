@@ -6,6 +6,9 @@ from java.awt.event import ActionEvent;
 from ij import IJ
 from ij import WindowManager
 from ij.gui import GenericDialog
+from ij.gui import NonBlockingGenericDialog
+from ij.plugin.filter import PlugInFilterRunner
+
 
 PATH_FIELD_COLUMNS = 30
 
@@ -37,7 +40,10 @@ class Options(ActionListener):
         self.path = None
         self.autosave = True
         self.wasCanceled = False
-            
+        self.previewPlugin = None
+        self.command = ""
+        self.nonBlocking = False
+        
     
     def getTitle(self):
         return self.title
@@ -64,7 +70,7 @@ class Options(ActionListener):
         optionsDict = {}
         for key, option in self.elements.items():
             optionsDict[key] = option.asDict()
-        meAsDict = {'title': self.title, 'elements': optionsDict, 'helpUrl': self.helpUrl}
+        meAsDict = {'title': self.title, 'elements': optionsDict, 'helpUrl': self.helpUrl, 'nonBlocking': self.nonBlocking}
         return meAsDict
     
     
@@ -81,6 +87,11 @@ class Options(ActionListener):
         with open(path, 'w') as outfile:
             outfile.write(self.asJSON())
        
+    
+    def addPreviewPlugin(self, aPlugin, command):
+        self.previewPlugin = aPlugin
+        self.command = command
+    
     
     def showDialog(self):
         self.createDialog()
@@ -109,11 +120,18 @@ class Options(ActionListener):
         
         
     def createDialog(self):
-        self.dialog = GenericDialog(self.getTitle())
+        if self.nonBlocking:
+            self.dialog = NonBlockingGenericDialog(self.getTitle())
+        else:
+            self.dialog = GenericDialog(self.getTitle())
         for option in self.sortedList():
             if option.isSameRow():
                 self.dialog.addToSameRow()
             option.addToDialog(self.dialog)
+        if self.previewPlugin:            
+            runner = PlugInFilterRunner(self.previewPlugin, self.command, str(self))
+            self.dialog.addPreviewCheckbox(runner) 
+            self.dialog.addDialogListener(self.previewPlugin)
         self.dialog.addCheckbox("save", self.autosave)
         if self.helpUrl:
             self.dialog.addHelp(self.helpUrl)
@@ -233,6 +251,8 @@ class Options(ActionListener):
     def fromDict(cls, aDict):
         options = Options(aDict['title'])
         options.setHelpUrl(aDict['helpUrl'])
+        if 'nonBlocking' in aDict.keys():
+            options.nonBlocking = aDict['nonBlocking']
         elements = aDict['elements']
         for optionDict in elements.values():
             option = Option.fromDict(optionDict)

@@ -36,6 +36,8 @@
 
 from __future__ import division
 import math
+from java.awt import AWTEvent
+from java.awt.event import TextEvent
 from ij import IJ
 from ij import WindowManager
 from ij.plugin.filter import PlugInFilterRunner
@@ -44,6 +46,13 @@ from ij.process import ImageConverter
 from ij.gui import DialogListener
 from ij.process import StackStatistics
 from ij.process import StackProcessor
+from ij import ImagePlus
+from ij.gui import ImageRoi
+from ij.gui import Overlay
+from ij.plugin import LutLoader
+from ij.process import LUT 
+from inra.ijpb.binary.conncomp import FloodFillComponentsLabeling3D
+from inra.ijpb.morphology.strel import BallStrel
 from imagescience.feature import Laplacian
 from imagescience.image import Image
 from mcib3d.image3d.processing import MaximaFinder
@@ -56,21 +65,40 @@ class SpotDetectionPlugInFilter(ExtendedPlugInFilter, DialogListener):
     def __init__(self):
         print("init")
         self.image = None
-
+        self.settingUp = True
+        self.spotDetector = SpotDetector()
+        
 
     def run(self, ip):  
-        print("detector running")
-        self.image.getProcessor().invert()        
-    
+        if self.settingUp:
+            self.settingUp = False
+            return
+        self.spotDetector.run(self.image)
+        self.image.updateAndDraw()
+        
     
     def dialogItemChanged(self, gd, e):
-        print("detector", e)
-        return not gd.invalidNumber()
+        if gd.invalidNumber():
+            return False
+        if e is None:
+            return True
+        if not e.getID() == TextEvent.TEXT_VALUE_CHANGED:
+            return True
+        textValue = e.getSource().getText()       
+        name = e.getSource().getName()
+        if name == "xy-diameter":
+            self.spotDetector.spotDiameterXY = float(textValue)
+        if name == "z-diameter":
+            self.spotDetector.spotDiameterZ = float(textValue)
+        if name == "prominence":
+            self.spotDetector.prominence = float(textValue)   
+        if name == "threshold":
+            self.spotDetector.threshold = float(textValue) 
+        return True
         
         
     def setup(self, arg, imp):
         self.image = imp
-        print("filter setup image:", self.image)
         return ExtendedPlugInFilter.DOES_ALL
     
 
@@ -89,10 +117,14 @@ class SpotDetector():
         self.threshold = 0.35    
         self.spots = []
         self.spotImage = None
+        self.inputImage = None
         IJ.run("FeatureJ Options", "isotropic progress log")
         
    
-    def run(self, inputImage):        
+    def run(self, inputImage):   
+        IJ.log("start detecting spots")
+        self.reportParameters()
+        self.inputImage = inputImage
         image = inputImage.crop("stack")
         sigmaXY = (self.spotDiameterXY / 2) / math.sqrt(2)
         squaredSigmaXY = sigmaXY * sigmaXY
@@ -100,9 +132,6 @@ class SpotDetector():
         spotRadiusPixelZ = image.getCalibration().getRawZ(self.spotDiameterZ / 2.0)
         doScaling = ImageConverter.getDoScaling()
         ImageConverter.setDoScaling(False)
-        print(sigmaXY)
-        print(spotRadiusPixelXY)
-        print(spotRadiusPixelZ)
         logImage = LoGFilter(sigmaXY).run(image)
         IJ.run(logImage, "Multiply...", "value=" + str(squaredSigmaXY) + " stack")
         stats = StackStatistics(logImage)
@@ -115,10 +144,49 @@ class SpotDetector():
         maxFinder = MaximaFinder(thresholded, spotRadiusPixelXY, spotRadiusPixelZ, self.prominence)
         self.spotImage = maxFinder.getImagePeaks().getImagePlus()  
         self.spots = list(maxFinder.getListPeaks())
+        self.addSpotsToOverlay()
         ImageConverter.setDoScaling(doScaling)
-       
+        IJ.log("finished detecting spots")
    
    
+    def reportParameters(self):
+        IJ.log("xy-diameter: " + str(self.spotDiameterXY))
+        IJ.log("z-diameter: " + str(self.spotDiameterZ))
+        IJ.log("prominence: " + str(self.prominence))
+        IJ.log("threshold: " + str(self.threshold))
+        
+    
+    def addSpotsToOverlay(self):
+        lutName = "glasbey on dark"
+        lut = LUT(LutLoader.getLut(lutName ), 0, 255)
+        image = self.inputImage
+        roi = image.getRoi()
+        labels = self.spotImage.duplicate()
+        floodFiller = FloodFillComponentsLabeling3D(6, 16)
+        res = floodFiller.computeResult(labels.getStack())
+        labelsStack = res.labelMap
+        strel = BallStrel.fromRadius(2)
+        labelsStack = strel.dilation(labelsStack)
+        resImage = ImagePlus("labels", labelsStack)
+        resImage.getChannelProcessor().setLut(lut)
+        resImage.setDisplayRange(0, len(self.spots))
+        rois = []
+        x = 0
+        y = 0
+        if roi:
+            x = roi.getBounds().x
+            y = roi.getBounds().y
+        for i in range(1, resImage.getStack().getSize()+1):
+            roi = ImageRoi(x, y, resImage.getStack().getProcessor(i))
+            roi.setOpacity(75)
+            roi.setZeroTransparent(True)
+            rois.append(roi)
+        overlay = Overlay.createStackOverlay(rois)
+        overlay.translate(x, y)
+        image.setOverlay(overlay)
+    
+    
+    
 class LoGFilter():
     
     
