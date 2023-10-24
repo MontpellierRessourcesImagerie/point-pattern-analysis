@@ -36,6 +36,9 @@
 
 from __future__ import division
 import math
+import time
+import datetime
+import os
 from java.awt import AWTEvent
 from java.awt.event import TextEvent
 from ij import IJ
@@ -51,19 +54,22 @@ from ij.gui import ImageRoi
 from ij.gui import Overlay
 from ij.plugin import LutLoader
 from ij.process import LUT 
+from ij.measure import ResultsTable
+from loci.plugins import BF
 from inra.ijpb.binary.conncomp import FloodFillComponentsLabeling3D
 from inra.ijpb.morphology.strel import BallStrel
 from imagescience.feature import Laplacian
 from imagescience.image import Image
 from mcib3d.image3d.processing import MaximaFinder
 from mcib3d.image3d import ImageHandler
+from fr.cnrs.mri.cialib.bfutil import BioformatsUtil
+
 
 
 class SpotDetectionPlugInFilter(ExtendedPlugInFilter, DialogListener):
 
     
     def __init__(self):
-        print("init")
         self.image = None
         self.settingUp = True
         self.spotDetector = SpotDetector()
@@ -76,7 +82,7 @@ class SpotDetectionPlugInFilter(ExtendedPlugInFilter, DialogListener):
         self.spotDetector.run(self.image)
         self.image.updateAndDraw()
         
-    
+      
     def dialogItemChanged(self, gd, e):
         if gd.invalidNumber():
             return False
@@ -118,6 +124,11 @@ class SpotDetector():
         self.spots = []
         self.spotImage = None
         self.inputImage = None
+        self.batchProcess = False
+        self.inputFolder = None
+        self.outputFolder = None
+        self.lutName = "glasbey on dark"
+        self.lut = LUT(LutLoader.getLut(self.lutName ), 0, 255)
         IJ.run("FeatureJ Options", "isotropic progress log")
         
    
@@ -142,13 +153,44 @@ class SpotDetector():
         thresholded = ImageHandler.wrap(logImage.duplicate())
         thresholded.thresholdCut(self.threshold, False, True)
         maxFinder = MaximaFinder(thresholded, spotRadiusPixelXY, spotRadiusPixelZ, self.prominence)
-        self.spotImage = maxFinder.getImagePeaks().getImagePlus()  
+        self.spotImage = maxFinder.getImagePeaks().getImagePlus()      
+        floodFiller = FloodFillComponentsLabeling3D(6, 16)
+        res = floodFiller.computeResult(self.spotImage.getStack())
+        self.spotImage.setStack(res.labelMap)
+        self.spotImage.getChannelProcessor().setLut(self.lut)
         self.spots = list(maxFinder.getListPeaks())
+        self.spotImage.setDisplayRange(0, len(self.spots))
         self.addSpotsToOverlay()
         ImageConverter.setDoScaling(doScaling)
         IJ.log("finished detecting spots")
    
-   
+
+    def runBatch(self):
+        startTime = time.time()
+        IJ.log("Started batch spot detection at " + str(datetime.datetime.fromtimestamp(startTime)))
+        if not os.path.exists(self.inputFolder):
+            IJ.log("Could not access the input folder: " + self.inputFolder)
+        if not os.path.exists(self.outputFolder):
+            os.makedirs(self.outputFolder)
+        imagePaths = [os.path.join(self.inputFolder, f) for f in os.listdir(self.inputFolder) if os.path.isfile(os.path.join(self.inputFolder, f)) and BioformatsUtil.isImage(os.path.join(self.inputFolder, f))]
+        numberOfImages = len(imagePaths)        
+        for nrOfImage, imagePath in enumerate(imagePaths, 1):
+            IJ.log("Processing image number " + str(nrOfImage) + " of " + str(numberOfImages))
+            image = BF.openImagePlus(imagePath)[0]
+            self.run(image)
+            _, imageName = os.path.split(imagePath) 
+            name, ext = os.path.splitext(imageName)
+            path = os.path.join(self.outputFolder, name + ".tif")
+            IJ.log("Saving image number " + str(nrOfImage) + " of " + str(numberOfImages))
+            IJ.save(self.spotImage, path)
+            table = self.getSpotsAsResultsTable()
+            path = os.path.join(self.outputFolder, name + ".xls")
+            table.save(path)
+        endTime = time.time()
+        IJ.log("Finished batch spot detection at " + str(datetime.datetime.fromtimestamp(endTime)))
+        IJ.log("Duration: " + str(datetime.timedelta(seconds = endTime - startTime)))
+        
+        
     def reportParameters(self):
         IJ.log("xy-diameter: " + str(self.spotDiameterXY))
         IJ.log("z-diameter: " + str(self.spotDiameterZ))
@@ -156,19 +198,26 @@ class SpotDetector():
         IJ.log("threshold: " + str(self.threshold))
         
     
+    def getSpotsAsResultsTable(self):
+        spotData = [(s.x, s.y, s.z, s.value) for s in self.spots]
+        columns = list(zip(*spotData))
+        table = ResultsTable()
+        table.showRowIndexes(True)
+        table.setValues("x", columns[0])
+        table.setValues("y", columns[1])
+        table.setValues("z", columns[2])
+        table.setValues("v", columns[3])
+        return table
+        
+    
     def addSpotsToOverlay(self):
         lutName = "glasbey on dark"
-        lut = LUT(LutLoader.getLut(lutName ), 0, 255)
-        image = self.inputImage
-        roi = image.getRoi()
-        labels = self.spotImage.duplicate()
-        floodFiller = FloodFillComponentsLabeling3D(6, 16)
-        res = floodFiller.computeResult(labels.getStack())
-        labelsStack = res.labelMap
+        roi = self.inputImage.getRoi()
+        labelsStack = self.spotImage.getStack()
         strel = BallStrel.fromRadius(2)
         labelsStack = strel.dilation(labelsStack)
         resImage = ImagePlus("labels", labelsStack)
-        resImage.getChannelProcessor().setLut(lut)
+        resImage.getChannelProcessor().setLut(self.lut)
         resImage.setDisplayRange(0, len(self.spots))
         rois = []
         x = 0
@@ -183,7 +232,7 @@ class SpotDetector():
             rois.append(roi)
         overlay = Overlay.createStackOverlay(rois)
         overlay.translate(x, y)
-        image.setOverlay(overlay)
+        self.inputImage.setOverlay(overlay)
     
     
     

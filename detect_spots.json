@@ -21,7 +21,7 @@
             "label": "Threshold: ", 
             "type": "float", 
             "sameRow": true, 
-            "value": 0.32, 
+            "value": 0.3, 
             "key": "threshold", 
             "order": 4
         }, 
@@ -43,9 +43,42 @@
             "label": "Prominence: ", 
             "type": "float", 
             "sameRow": false, 
-            "value": 0.05, 
+            "value": 0.12, 
             "key": "prominence", 
             "order": 3
+        },
+        "batch": {
+            "conversions": null, 
+            "helpText": "If checked all files in the selected folder will be processed", 
+            "defaultValue": false, 
+            "label": "Batch ", 
+            "type": "bool", 
+            "sameRow": false, 
+            "value": false, 
+            "key": "batch", 
+            "order": 5
+        }, 
+        "input-folder": {
+            "conversions": null, 
+            "helpText": "The folder containing the phantom images", 
+            "defaultValue": null, 
+            "label": "Input Folder: ", 
+            "type": "directory", 
+            "sameRow": false, 
+            "value": "/home/baecker/Documents/mri/2023/mifobio/experiments/A01-spot-detection/clustered/", 
+            "key": "input-folder", 
+            "order": 6
+        },
+        "output-folder": {
+            "conversions": null, 
+            "helpText": "The folder into which the results will be written", 
+            "defaultValue": null, 
+            "label": "Output Folder: ", 
+            "type": "directory", 
+            "sameRow": false, 
+            "value": "/home/baecker/Documents/mri/2023/mifobio/experiments/A01-spot-detection/clustered/acquired/", 
+            "key": "output-folder", 
+            "order": 7
         }
     }
 }

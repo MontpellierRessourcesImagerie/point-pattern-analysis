@@ -9,14 +9,22 @@ SAVE_OPTIONS = True
 
 def main():
     img = IJ.getImage()
+    if img.getOverlay():
+        img.getOverlay().clear()
     plugin = SpotDetectionPlugInFilter()
     options = getOptions(plugin)
     if not options:
         return
+    options.transferTo(plugin, getOptionsMap())
+    if plugin.spotDetector.batchProcess:
+        plugin.spotDetector.runBatch()
+        return    
     plugin.spotDetector.run(img)    
     plugin.spotDetector.spotImage.show()
+    table = plugin.spotDetector.getSpotsAsResultsTable()
+    table.show("spots in image")
     
-
+   
 def getOptions(plugin):
     options = Options.fromFile(getOptionsPath())
     options.autosave = SAVE_OPTIONS
@@ -41,7 +49,10 @@ def getOptionsMap():
     optionsMap = {'spotDetector.spotDiameterXY': 'xy-diameter', 
                   'spotDetector.spotDiameterZ': 'z-diameter',   
                   'spotDetector.prominence': 'prominence', 
-                  'spotDetector.threshold': 'threshold'
+                  'spotDetector.threshold': 'threshold',
+                  'spotDetector.batchProcess': 'batch',
+                  'spotDetector.inputFolder': 'input-folder',
+                  'spotDetector.outputFolder': 'output-folder',
                   }
     return optionsMap
     

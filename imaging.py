@@ -14,11 +14,10 @@ from ij.plugin import Duplicator
 from ij.plugin import GaussianBlur3D
 from ij.plugin import Binner
 from ij.plugin import LutLoader
-from loci.formats import ImageReader
 from loci.plugins import BF
 from imagescience.random import Randomizer  # For photon noise
 from imagescience.image import Image        # Needed by Randomizer
-
+from fr.cnrs.mri.cialib.bfutil import BioformatsUtil
 
 # Inspired by https://petebankhead.gitbooks.io/imagej-intro/content/chapters/macro_simulating/macro_simulating.html?q=
 
@@ -91,7 +90,7 @@ class Microscope:
             IJ.log("Could not access the input folder: " + self.inputFolder)
         if not os.path.exists(self.outputFolder):
             os.makedirs(self.outputFolder)
-        imagePaths = [os.path.join(self.inputFolder, f) for f in os.listdir(self.inputFolder) if os.path.isfile(os.path.join(self.inputFolder, f)) and self.isImage(os.path.join(self.inputFolder, f))]
+        imagePaths = [os.path.join(self.inputFolder, f) for f in os.listdir(self.inputFolder) if os.path.isfile(os.path.join(self.inputFolder, f)) and BioformatsUtil.isImage(os.path.join(self.inputFolder, f))]
         numberOfImages = len(imagePaths)        
         for nrOfImage, imagePath in enumerate(imagePaths, 1):
             IJ.log("Acquiring image number " + str(nrOfImage) + " of " + str(numberOfImages))
