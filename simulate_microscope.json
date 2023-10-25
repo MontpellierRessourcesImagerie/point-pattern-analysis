@@ -1,4 +1,5 @@
 {
+    "nonBlocking": false, 
     "helpUrl": "https://github.com/MontpellierRessourcesImagerie/point-pattern-analysis/wiki/3D_Synthetic_Spots", 
     "title": "Simulate Microscope Options", 
     "elements": {
@@ -53,7 +54,7 @@
             "label": "max._photon emission", 
             "type": "int", 
             "sameRow": false, 
-            "value": 100, 
+            "value": 10000, 
             "key": "max._photon", 
             "order": 11
         }, 
