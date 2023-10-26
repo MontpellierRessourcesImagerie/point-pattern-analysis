@@ -105,7 +105,7 @@ class SpotDetectionPlugInFilter(ExtendedPlugInFilter, DialogListener):
         
     def setup(self, arg, imp):
         self.image = imp
-        return ExtendedPlugInFilter.DOES_ALL
+        return ExtendedPlugInFilter.DOES_ALL + ExtendedPlugInFilter.NO_CHANGES
     
 
     def setNPasses(self, nPasses):
@@ -147,7 +147,7 @@ class SpotDetector():
         IJ.run(logImage, "Multiply...", "value=" + str(squaredSigmaXY) + " stack")
         stats = StackStatistics(logImage)
         IJ.run(logImage, "Subtract...", "value=" + str(stats.min) + " stack")
-        logImage.getProcessor().setMinAndMax(0, stats.max - stats.min)
+        logImage.setDisplayRange(0, stats.max - stats.min)
         StackProcessor(logImage.getStack()).invert()
         stats = StackStatistics(logImage)
         thresholded = ImageHandler.wrap(logImage.duplicate())
