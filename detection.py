@@ -57,7 +57,7 @@ from ij.process import LUT
 from ij.measure import ResultsTable
 from loci.plugins import BF
 from inra.ijpb.binary.conncomp import FloodFillComponentsLabeling3D
-from inra.ijpb.morphology.strel import BallStrel
+from inra.ijpb.morphology.strel import CubeStrel
 from imagescience.feature import Laplacian
 from imagescience.image import Image
 from mcib3d.image3d.processing import MaximaFinder
@@ -214,7 +214,7 @@ class SpotDetector():
         lutName = "glasbey on dark"
         roi = self.inputImage.getRoi()
         labelsStack = self.spotImage.getStack()
-        strel = BallStrel.fromRadius(2)
+        strel = CubeStrel.fromRadius(2)
         labelsStack = strel.dilation(labelsStack)
         resImage = ImagePlus("labels", labelsStack)
         resImage.getChannelProcessor().setLut(self.lut)
