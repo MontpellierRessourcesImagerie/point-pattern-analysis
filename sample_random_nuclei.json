@@ -1,4 +1,5 @@
 {
+    "nonBlocking": false, 
     "helpUrl": "https://github.com/MontpellierRessourcesImagerie/point-pattern-analysis/wiki/3D_Synthetic_Spots", 
     "title": "Sample Random Nuclei Options", 
     "elements": {
@@ -9,7 +10,7 @@
             "label": "StdDev. x-radius: ", 
             "type": "float", 
             "sameRow": true, 
-            "value": 1.4, 
+            "value": 0.5, 
             "key": "sdtDev_x_radius", 
             "order": 11
         }, 
@@ -20,7 +21,7 @@
             "label": "Batch ", 
             "type": "bool", 
             "sameRow": false, 
-            "value": true, 
+            "value": false, 
             "key": "batch", 
             "order": 21
         }, 
@@ -139,7 +140,7 @@
             "label": "Mean x-radius: ", 
             "type": "float", 
             "sameRow": false, 
-            "value": 4.0, 
+            "value": 5.0, 
             "key": "mean_x_radius", 
             "order": 10
         }, 
@@ -150,7 +151,7 @@
             "label": "Width Of Image: ", 
             "type": "int", 
             "sameRow": false, 
-            "value": 1030, 
+            "value": 1300, 
             "key": "width", 
             "order": 1
         }, 
@@ -183,7 +184,7 @@
             "label": "Mean y-radius: ", 
             "type": "float", 
             "sameRow": false, 
-            "value": 3.0, 
+            "value": 4.0, 
             "key": "mean_y_radius", 
             "order": 12
         }, 
@@ -227,7 +228,7 @@
             "label": "Height Of Image: ", 
             "type": "int", 
             "sameRow": true, 
-            "value": 1030, 
+            "value": 1300, 
             "key": "height", 
             "order": 2
         }, 

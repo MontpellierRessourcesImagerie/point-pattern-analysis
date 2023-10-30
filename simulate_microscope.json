@@ -54,7 +54,7 @@
             "label": "max._photon emission", 
             "type": "int", 
             "sameRow": false, 
-            "value": 10000, 
+            "value": 100, 
             "key": "max._photon", 
             "order": 11
         }, 

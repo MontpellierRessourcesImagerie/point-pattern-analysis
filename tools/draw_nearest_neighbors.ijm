@@ -19,8 +19,8 @@ function drawNearestNeighborConnections() {
     zGreen = Table.getColumn("Z", "green");
     
     sourceLabel = Table.getColumn("LabelObj", "neighbors");
-    destLabel = Table.getColumn("O1", "neighbors");
-    distance = Table.getColumn("V1", "neighbors");
+    destLabel = Table.getColumn("O2", "neighbors");
+    distance = Table.getColumn("V2", "neighbors");
 
     size = sourceLabel.length;
     
@@ -31,6 +31,7 @@ function drawNearestNeighborConnections() {
         sLabel = sourceLabel[row];
         sIndex = getIndexOfValue(labelRed, sLabel);
         dLabel = destLabel[row];
+        if (dLabel == 0) continue;
         dIndex = getIndexOfValue(labelGreen, dLabel);
         x1 = xRed[sIndex];
         y1 = yRed[sIndex];
