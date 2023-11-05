@@ -21,6 +21,9 @@ class Histogram:
         self.nBins = nBins
         self.binStarts = []
         self.counts = []
+        self.mode = 0
+        self.xLabel =  "distance [micron]"
+        self.yLabel = "count"
         
         
     def calculate(self):
@@ -28,16 +31,38 @@ class Histogram:
             self.binWidth = 3.49 * self.stats.stdDev * self.stats.count ** (-1.0/3.0)
             self.nBins = int(math.floor(((self.stats.max - self.stats.min) / self.binWidth)) + 0.5)
             self.nBins = max(2, self.nBins)
-        ip = FloatProcessor(self.stats.count, 1, self.data, None)
+        else:
+            self.binWidth = (self.end - self.start) /  self.nBins
+        ip = FloatProcessor(self.stats.count, 1, self.data, None)        
         imp = ImagePlus("", ip)
         stats = StackStatistics(imp, self.nBins, self.start, self.end)
         self.counts = stats.histogram()
         self.binStarts = [self.start + ((i+1) * self.binWidth) for i in range(len(self.counts))]
+        self.mode = stats.dmode
         
-        
-    def getPlot(self, title = "data", xLabel = "distance [micron]", yLabel = "count"):
-        plot = Plot("histogram of " + title,  xLabel, yLabel, self.binStarts, self.counts)    
+    
+    def cumulate(self):
+        if not self.counts:
+            self.calculate()
+        for i in range(1, len(self.counts)):
+            self.counts[i] = self.counts[i] + self.counts[i-1]
+        for i in range(0, len(self.counts)):
+            self.counts[i] = self.counts[i] / self.counts[-1]
+        self.xLabel = "distance d [micron]"
+        self.yLabel = "fraction of distances <= d"
+            
+    
+    def getPlot(self, title = "data"):
+        label = self.xLabel + " (N=" + str(self.stats.count) \
+                       + ", min=" + "{:.3f}".format(self.stats.min) \
+                       + ", max=" + "{:.3f}".format(self.stats.max) \
+                       + ", mean=" + "{:.3f}".format(self.stats.mean) \
+                       + ", stdDev=" + "{:.3f}".format(self.stats.stdDev) \
+                       + ", mode=" + "{:.3f}".format(self.mode) + ")" 
+        plot = Plot("histogram of " + title,  label, self.yLabel, self.binStarts, self.counts, Plot.X_NUMBERS + Plot.Y_NUMBERS + Plot.X_TICKS + Plot.X_MINOR_TICKS)    
         plot.setStyle(0, "black,green,2.0,separated bars")
+        plot.setOptions("xdecimals=2")
+        plot.setJustification(Plot.RIGHT)        
         return plot
     
 

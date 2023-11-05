@@ -129,13 +129,7 @@ class Microscope:
     
      
     def isImage(self, path):
-        baseReader = ImageReader()
-        readers = baseReader.getReaders()
-        rtype = None
-        for reader in readers:
-            if reader.isThisType(path):
-                rtype = reader        
-        return not rtype is None
+        return BioformatsUtil.isImage(path)
     
     
     def mountSample(self, aPhantomImage):

@@ -54,7 +54,7 @@
             "label": "max._photon emission", 
             "type": "int", 
             "sameRow": false, 
-            "value": 100, 
+            "value": 10000, 
             "key": "max._photon", 
             "order": 11
         }, 
@@ -120,7 +120,7 @@
             "label": "Input Folder: ", 
             "type": "directory", 
             "sameRow": false, 
-            "value": "/home/baecker/Documents/mri/2023/mifobio/experiments/A01-spot-detection/clustered/", 
+            "value": "/home/baecker/Documents/mri/2023/mifobio/experiments/A01-spot-detection/uniform/", 
             "key": "input-folder", 
             "order": 21
         }, 
@@ -175,7 +175,7 @@
             "label": "Output Folder: ", 
             "type": "directory", 
             "sameRow": false, 
-            "value": "/home/baecker/Documents/mri/2023/mifobio/experiments/A01-spot-detection/clustered/acquired/", 
+            "value": "/home/baecker/Documents/mri/2023/mifobio/experiments/A01-spot-detection/uniform/acquired/", 
             "key": "output-folder", 
             "order": 22
         }

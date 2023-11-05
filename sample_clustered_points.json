@@ -1,4 +1,5 @@
 {
+    "nonBlocking": false, 
     "helpUrl": "https://github.com/MontpellierRessourcesImagerie/point-pattern-analysis/wiki/3D_Synthetic_Spots", 
     "title": "Sample Clustered Points Options", 
     "elements": {
@@ -9,7 +10,7 @@
             "label": "Batch ", 
             "type": "bool", 
             "sameRow": false, 
-            "value": true, 
+            "value": false, 
             "key": "batch", 
             "order": 14
         }, 
@@ -73,7 +74,7 @@
             "label": "Depth Of Image: ", 
             "type": "int", 
             "sameRow": true, 
-            "value": 50, 
+            "value": 64, 
             "key": "depth", 
             "order": 3
         }, 
@@ -95,7 +96,7 @@
             "label": "Width Of Image: ", 
             "type": "int", 
             "sameRow": false, 
-            "value": 1300, 
+            "value": 1030, 
             "key": "width", 
             "order": 1
         }, 
@@ -128,7 +129,7 @@
             "label": "Max.-Dist. from cluster center: ", 
             "type": "float", 
             "sameRow": true, 
-            "value": 90.0, 
+            "value": 5.0, 
             "key": "max.-dist.", 
             "order": 13
         }, 
@@ -150,7 +151,7 @@
             "label": "Height Of Image: ", 
             "type": "int", 
             "sameRow": true, 
-            "value": 1300, 
+            "value": 880, 
             "key": "height", 
             "order": 2
         }, 

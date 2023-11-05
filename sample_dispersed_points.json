@@ -1,4 +1,5 @@
 {
+    "nonBlocking": false, 
     "helpUrl": "https://github.com/MontpellierRessourcesImagerie/point-pattern-analysis/wiki/3D_Synthetic_Spots", 
     "title": "Sample Dispersed Points Options", 
     "elements": {
@@ -9,7 +10,7 @@
             "label": "Batch ", 
             "type": "bool", 
             "sameRow": false, 
-            "value": true, 
+            "value": false, 
             "key": "batch", 
             "order": 11
         }, 
@@ -73,7 +74,7 @@
             "label": "Depth Of Image: ", 
             "type": "int", 
             "sameRow": true, 
-            "value": 50, 
+            "value": 64, 
             "key": "depth", 
             "order": 3
         }, 
@@ -128,7 +129,7 @@
             "label": "Max.-Dist. from grid: ", 
             "type": "float", 
             "sameRow": false, 
-            "value": 30.0, 
+            "value": 3.0, 
             "key": "max.-dist.", 
             "order": 9
         }, 

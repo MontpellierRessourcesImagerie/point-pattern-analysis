@@ -1,4 +1,5 @@
 {
+    "nonBlocking": false, 
     "helpUrl": "https://github.com/MontpellierRessourcesImagerie/point-pattern-analysis/wiki/3D_Synthetic_Spots", 
     "title": "Sample Random Points Options", 
     "elements": {
@@ -51,7 +52,7 @@
             "label": "Number Of Samples: ", 
             "type": "int", 
             "sameRow": false, 
-            "value": 1000, 
+            "value": 910, 
             "key": "number", 
             "order": 8
         }, 
@@ -84,7 +85,7 @@
             "label": "Depth Of Image: ", 
             "type": "int", 
             "sameRow": true, 
-            "value": 50, 
+            "value": 64, 
             "key": "depth", 
             "order": 3
         }, 
@@ -95,7 +96,7 @@
             "label": "Width Of Image: ", 
             "type": "int", 
             "sameRow": false, 
-            "value": 1300, 
+            "value": 1030, 
             "key": "width", 
             "order": 1
         }, 
@@ -117,7 +118,7 @@
             "label": "Output Folder: ", 
             "type": "directory", 
             "sameRow": true, 
-            "value": "/home/baecker/Documents/mri/2023/mifobio/experiments/A01-spot-detection/", 
+            "value": "/home/baecker/Documents/mri/2023/mifobio/experiments/A01-spot-detection/uniform/", 
             "key": "output-folder", 
             "order": 12
         }, 
@@ -128,7 +129,7 @@
             "label": "Height Of Image: ", 
             "type": "int", 
             "sameRow": true, 
-            "value": 1300, 
+            "value": 880, 
             "key": "height", 
             "order": 2
         }, 

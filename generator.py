@@ -220,7 +220,7 @@ class SpotGenerator(Generator):
         y = random.random()
         z = random.random()
         d = random.uniform(0, maxDist)     
-        if self.calibration.scaled():
+        if self.calibration and self.calibration.scaled():
             x = self.calibration.getX(x)
             y = self.calibration.getY(y)
             z = self.calibration.getZ(z)
@@ -228,7 +228,7 @@ class SpotGenerator(Generator):
         x = (x / l) * d
         y = (y / l) * d
         z = (z / l) * d
-        if self.calibration.scaled():
+        if self.calibration and self.calibration.scaled():
              x = point[0] + int(self.calibration.getRawX(x))
              y = point[1] + int(self.calibration.getRawY(y))
              z = point[2] + int(self.calibration.getRawZ(z))
