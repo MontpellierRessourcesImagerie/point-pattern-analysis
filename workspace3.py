@@ -9,7 +9,7 @@ gen = SpotGenerator()
 cal = IJ.getImage().getCalibration()
 gen.calibration = None
 
-N = 3000
+N = 1200
 width = 1030
 height = 1030
 depth = 64

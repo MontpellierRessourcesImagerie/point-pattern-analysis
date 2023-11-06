@@ -52,7 +52,7 @@
             "label": "Number Of Samples: ", 
             "type": "int", 
             "sameRow": false, 
-            "value": 1000, 
+            "value": 910, 
             "key": "number", 
             "order": 8
         }, 
@@ -85,7 +85,7 @@
             "label": "Number of Images: ", 
             "type": "int", 
             "sameRow": true, 
-            "value": 100, 
+            "value": 10, 
             "key": "number-of-images", 
             "order": 15
         }, 
@@ -118,7 +118,7 @@
             "label": "Output Folder: ", 
             "type": "directory", 
             "sameRow": true, 
-            "value": "/home/baecker/Documents/mri/2023/mifobio/experiments/A01-spot-detection/clustered2/", 
+            "value": "/home/baecker/Documents/mri/2023/mifobio/experiments/A01-C-spot-detection-extreme-patterns/clustered/", 
             "key": "output-folder", 
             "order": 16
         }, 
@@ -129,7 +129,7 @@
             "label": "Max.-Dist. from cluster center: ", 
             "type": "float", 
             "sameRow": true, 
-            "value": 5.0, 
+            "value": 10.0, 
             "key": "max.-dist.", 
             "order": 13
         }, 
@@ -140,7 +140,7 @@
             "label": "Clusters: ", 
             "type": "int", 
             "sameRow": false, 
-            "value": 50, 
+            "value": 100, 
             "key": "clusters", 
             "order": 12
         }, 

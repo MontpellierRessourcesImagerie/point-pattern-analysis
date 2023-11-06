@@ -10,7 +10,7 @@
             "label": "Batch ", 
             "type": "bool", 
             "sameRow": false, 
-            "value": false, 
+            "value": true, 
             "key": "batch", 
             "order": 11
         }, 
@@ -85,7 +85,7 @@
             "label": "Number of Images: ", 
             "type": "int", 
             "sameRow": true, 
-            "value": 100, 
+            "value": 10, 
             "key": "number-of-images", 
             "order": 12
         }, 
@@ -118,7 +118,7 @@
             "label": "Output Folder: ", 
             "type": "directory", 
             "sameRow": true, 
-            "value": "/home/baecker/Documents/mri/2023/mifobio/experiments/A01-spot-detection/", 
+            "value": "/home/baecker/Documents/mri/2023/mifobio/experiments/A01-C-spot-detection-extreme-patterns/dispersed/", 
             "key": "output-folder", 
             "order": 12
         }, 
@@ -129,7 +129,7 @@
             "label": "Max.-Dist. from grid: ", 
             "type": "float", 
             "sameRow": false, 
-            "value": 3.0, 
+            "value": 2.0, 
             "key": "max.-dist.", 
             "order": 9
         }, 

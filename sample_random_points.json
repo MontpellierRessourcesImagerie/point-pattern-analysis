@@ -74,7 +74,7 @@
             "label": "Number of Images: ", 
             "type": "int", 
             "sameRow": true, 
-            "value": 100, 
+            "value": 10, 
             "key": "number-of-images", 
             "order": 11
         }, 
@@ -118,7 +118,7 @@
             "label": "Output Folder: ", 
             "type": "directory", 
             "sameRow": true, 
-            "value": "/home/baecker/Documents/mri/2023/mifobio/experiments/A01-spot-detection/uniform/", 
+            "value": "/home/baecker/Documents/mri/2023/mifobio/experiments/A01-C-spot-detection-extreme-patterns/uniform/", 
             "key": "output-folder", 
             "order": 12
         }, 

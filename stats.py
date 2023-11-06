@@ -24,6 +24,7 @@ class Histogram:
         self.mode = 0
         self.xLabel =  "distance [micron]"
         self.yLabel = "count"
+        self.N = 0
         
         
     def calculate(self):
@@ -46,11 +47,22 @@ class Histogram:
             self.calculate()
         for i in range(1, len(self.counts)):
             self.counts[i] = self.counts[i] + self.counts[i-1]
+        self.N = self.counts[-1]
+        print("N", self.N)
         for i in range(0, len(self.counts)):
-            self.counts[i] = self.counts[i] / self.counts[-1]
+            self.counts[i] = self.counts[i] / self.N
         self.xLabel = "distance d [micron]"
         self.yLabel = "fraction of distances <= d"
             
+   
+    def normalizeRipley(self, volume):
+        density = self.N / volume
+        print('N', self.N)
+        print("volume", volume)
+        print("density", density)
+        for i in range(0, len(self.counts)):
+            self.counts[i] = self.counts[i] / density
+    
     
     def getPlot(self, title = "data"):
         label = self.xLabel + " (N=" + str(self.stats.count) \

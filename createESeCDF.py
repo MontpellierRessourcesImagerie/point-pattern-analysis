@@ -8,7 +8,7 @@ COLOR = "red"
 
 image = IJ.getImage()
 nrOfRefPoints = int(StackStatistics(image).max)
-eCDF = EmptySpaceEmpiricalCDF(image, 300)
+eCDF = EmptySpaceEmpiricalCDF(image, nrOfRefPoints)
 hist = eCDF.get()
 plot = hist.getPlot(title=image.getTitle()+" (empty space eCDF)")
 plot.setStyle(0, COLOR+","+COLOR+",2,line")

@@ -32,13 +32,17 @@ class SpatialStatFunction(object):
     def getPlot(self, start, end, n):  
         X = [start + (x * ((end-start)/n)) for x in range(0, n)]
         Y = [self.v(x) for x in X]
-        plot = Plot(self.name() +"(density=" + str(self.density) + ")", "distance d[micron]", "fraction of distances <= d")
+        plot = Plot(self.getPlotTitle(), "distance d[micron]", "fraction of distances <= d")
         plot.setLineWidth(2)
         plot.setLimitsToFit(True)
         plot.add("line", X, Y)
         return plot
 
 
+    def getPlotTitle(self):
+        title = self.name() +"(density=" + str(self.density) + ")"        
+        return title    
+    
 
 class GFunction(SpatialStatFunction):
 
@@ -49,7 +53,6 @@ class GFunction(SpatialStatFunction):
         
         
     def v(self, r):
-        l = self.density
         res = 1 - math.exp(self.factor * r**3)
         return res
         
@@ -68,7 +71,6 @@ class FFunction(SpatialStatFunction):
         
         
     def v(self, r):
-        l = self.density
         res = 1 - math.exp(self.factor * r**3)
         return res
         
@@ -78,6 +80,70 @@ class FFunction(SpatialStatFunction):
         
         
         
+class KFunction(SpatialStatFunction):
+
+
+    def __init__(self):
+        self.factor = (4 * math.pi) / 3
+        
+        
+    def v(self, r):
+        res = self.factor * r**3
+        return res
+       
+    
+    def name(self):
+        return "K"
+        
+        
+    def getPlotTitle(self):
+        title = self.name()  
+        return title    
+
+
+
+class LFunction(SpatialStatFunction):
+
+
+    def __init__(self):
+        factor = 1
+        
+        
+    def v(self, r):
+        return r
+       
+    
+    def name(self):
+        return "L"
+        
+        
+    def getPlotTitle(self):
+        title = self.name()  
+        return title
+
+
+
+class HFunction(SpatialStatFunction):
+
+
+    def __init__(self):
+        factor = 0
+        
+        
+    def v(self, r):
+        return 0
+       
+    
+    def name(self):
+        return "H"
+        
+        
+    def getPlotTitle(self):
+        title = self.name()  
+        return title
+
+
+
 class ECDF(object):
 
 
@@ -192,7 +258,7 @@ class EmptySpaceEmpiricalCDF(ECDF):
         pop.addObjects(objects)
         refPop = Objects3DIntPopulation()
         refPop.addObjects(refObjects)
-        analyzer = MeasurePopulationClosestDistance(pop, refPop, Double.POSITIVE_INFINITY, MeasurePopulationClosestDistance.CLOSEST_CC1_UNIT)
+        analyzer = MeasurePopulationClosestDistance(refPop, pop, Double.POSITIVE_INFINITY, MeasurePopulationClosestDistance.CLOSEST_CC1_UNIT)
         table = analyzer.getResultsTableOnlyColoc(True)
         self.distances = list(table.getColumn("V1"))
         
@@ -203,18 +269,6 @@ class EmptySpaceEmpiricalCDF(ECDF):
             generator.sample()
             self.referencePoints = generator.points
         return self.referencePoints
-
-
-    def getGenerator(self, nrOfSamples):
-        generator = DispersedRandomSpotGenerator()
-        width, height, _, nSlices, _ = self.source.getDimensions()
-        generator.width = width
-        generator.height = height
-        generator.depth = nSlices
-        generator.calibration = self.source.getCalibration()
-        generator.bitDepth = self.source.getBitDepth()        
-        generator.numberOfSamples = nrOfSamples      
-        return generator
 
 
 
