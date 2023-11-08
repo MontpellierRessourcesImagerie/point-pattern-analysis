@@ -143,9 +143,9 @@ def getColumn(aC):
 
 def getColumns(xC, yC, zC):
     rt = ResultsTable.getResultsTable()
-    xIndex = getColumnIndex(XColumn)
-    yIndex = getColumnIndex(YColumn)
-    zIndex = getColumnIndex(ZColumn)
+    xIndex = getColumnIndex(xC)
+    yIndex = getColumnIndex(yC)
+    zIndex = getColumnIndex(zC)
     columnX = []
     columnY = []
     columnZ = []
