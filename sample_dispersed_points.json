@@ -118,7 +118,7 @@
             "label": "Output Folder: ", 
             "type": "directory", 
             "sameRow": true, 
-            "value": "/home/baecker/Documents/mri/2023/mifobio/experiments/A01-C-spot-detection-extreme-patterns/dispersed/", 
+            "value": "/home/baecker/Documents/mri/2023/mifobio/experiments/A01-spot-detection/dispersed/", 
             "key": "output-folder", 
             "order": 12
         }, 
@@ -129,7 +129,7 @@
             "label": "Max.-Dist. from grid: ", 
             "type": "float", 
             "sameRow": false, 
-            "value": 2.0, 
+            "value": 10.0, 
             "key": "max.-dist.", 
             "order": 9
         }, 

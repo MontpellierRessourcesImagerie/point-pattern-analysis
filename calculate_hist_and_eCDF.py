@@ -2,8 +2,8 @@ from fr.cnrs.mri.cialib.stats import Histogram
 from ij.measure import ResultsTable
 from jarray import array
 
-COLUMN = "V1"
-TABLE = "empty space distances"
+COLUMN = "V2"
+TABLE = "ClosestDistanceCCUnit"
 
 table = ResultsTable.getResultsTable(TABLE)
 data = table.getColumn(COLUMN)

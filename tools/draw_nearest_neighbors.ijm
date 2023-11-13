@@ -1,4 +1,4 @@
-var MAX_DIST = 13;
+var MAX_DIST = 9999999;
 
 drawNearestNeighborConnections();
 

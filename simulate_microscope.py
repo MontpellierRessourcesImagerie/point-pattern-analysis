@@ -71,7 +71,7 @@ def getOptions():
 
 def getOptionsPath():
     pluginsPath = IJ.getDirectory("plugins")
-    optionsPath = pluginsPath + "3D_Synthetic_Spots/simulate_microscope.json"
+    optionsPath = pluginsPath + "point_pattern_analysis/simulate_microscope.json"
     return optionsPath
    
 
