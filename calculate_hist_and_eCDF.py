@@ -1,15 +1,14 @@
+from ij import IJ
 from fr.cnrs.mri.cialib.stats import Histogram 
+from fr.cnrs.mri.cialib.spatialstats import NearestNeighborEmpiricalCDF
 from ij.measure import ResultsTable
 from jarray import array
 
-COLUMN = "V2"
-TABLE = "ClosestDistanceCCUnit"
+image = IJ.getImage()
+nn = NearestNeighborEmpiricalCDF(image)
+nn.calculateDistances()
 
-table = ResultsTable.getResultsTable(TABLE)
-data = table.getColumn(COLUMN)
-data = array(list(data), 'f')
-
-hist = Histogram(data, start=0, end=8, nBins=100)
+hist = Histogram(nn.distances, start=0, end=max(nn.distances) + 1, nBins=12)
 hist.autoBinning = False
 hist.calculate()
 hist.getPlot().show()

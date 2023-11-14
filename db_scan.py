@@ -1,7 +1,7 @@
 '''
 DBSCAN-clustering of 3D-points. 
 
-(c) 2019-2022, INSERM
+(c) 2019-2023, INSERM
 written by Volker Baecker at Montpellier Ressources Imagerie, Biocampus Montpellier, INSERM, CNRS, University of Montpellier (www.mri.cnrs.fr)
 
 The points must be in the X, Y, Z and NR columns
@@ -27,10 +27,10 @@ import jarray
 
 
 def main():
-    XColumn = 'X'
-    YColumn = 'Y'
-    ZColumn = 'Z'
-    NRColumn = 'NR'
+    XColumn = 'Centroid.X'
+    YColumn = 'Centroid.Y'
+    ZColumn = 'Centroid.Z'
+    NRColumn = 'Label'
     minPts = 4
     maxDist = 3
     run(maxDist, minPts, XColumn, YColumn, ZColumn, NRColumn)
@@ -58,7 +58,7 @@ def pointList3DFromRT(XColumn='X', YColumn='Y', ZColumn='Z'):
     '''
     Create a list of 3D-coordinates from the ImageJ system results table and return it.
     '''
-    rt = ResultsTable.getResultsTable()
+    rt = ResultsTable.getActiveTable()
     xIndex = getColumnIndex(XColumn)
     yIndex = getColumnIndex(YColumn)
     zIndex = getColumnIndex(ZColumn)
@@ -82,25 +82,23 @@ def reportClustersAsTable(clusters, allPoints, XColumn='X', YColumn='Y', ZColumn
     '''
     Report the clustered and unclustered points in the tables 'clusters' and 'unclustered'.
     '''
-    rt = ResultsTable()
+    rt_clustered = ResultsTable()
     counter = 1;
     clusterCounter = 1
     clusteredPoints = []
     for c in clusters:
         for dp in c.getPoints():
-            rt.incrementCounter()
+            rt_clustered.incrementCounter()
             p = dp.getPoint()
-            rt.addValue(NRColumn, counter)
-            rt.addValue(XColumn, p[0])
-            rt.addValue(YColumn, p[1])
-            rt.addValue(ZColumn, p[2])
-            rt.addValue("C", clusterCounter)
+            rt_clustered.addValue(NRColumn, counter)
+            rt_clustered.addValue(XColumn, p[0])
+            rt_clustered.addValue(YColumn, p[1])
+            rt_clustered.addValue(ZColumn, p[2])
+            rt_clustered.addValue("C", clusterCounter)
             counter = counter + 1;
             clusteredPoints.append([p[0], p[1], p[2]])
         clusterCounter = clusterCounter + 1
-    rt.show("clusters")
-    win = WindowManager.getWindow("Results")
-    rt = win.getResultsTable()
+    rt = ResultsTable.getActiveTable()
     X, Y, Z  = getColumns(XColumn, YColumn, ZColumn)
     if not rt.columnExists(NRColumn):
         for i in range(0, len(X)):
@@ -118,13 +116,14 @@ def reportClustersAsTable(clusters, allPoints, XColumn='X', YColumn='Y', ZColumn
         rt.addValue(ZColumn, p[2])
         counter = counter + 1;    
     rt.show("unclustered")
-    WindowManager.setWindow(win)
+    rt_clustered.show("clusters")
+    WindowManager.getWindow("Results").close()
 
 
 def getColumnIndex(column):
-    rt = ResultsTable.getResultsTable()
+    rt = ResultsTable.getActiveTable()
     headings = rt.getHeadings()
-    for i, heading in enumerate(headings, start=1):
+    for i, heading in enumerate(headings, start=0):
         if heading==column:
             return i
     return None

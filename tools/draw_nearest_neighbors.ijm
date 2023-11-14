@@ -1,10 +1,13 @@
 var MAX_DIST = 999999;
-var IS_SCALED = false;
-var X_COLUMN = "axis-2";
-var Y_COLUMN = "axis-1";
-var Z_COLUMN = "axis-0";
+var IS_SCALED = true;
+var X_COLUMN = "Centroid.X";
+var Y_COLUMN = "Centroid.Y";
+var Z_COLUMN = "Centroid.Z";
+var LABEL_COLUMN = "Label";
+
 
 drawNearestNeighborConnections();
+
 
 function drawNearestNeighborConnections() {
     inputStackID = getImageID();
@@ -14,19 +17,17 @@ function drawNearestNeighborConnections() {
     
     table = Table.title;
     duplicateTable(table, "green")
-    Table.applyMacro("Label = index + 1", "green");
     duplicateTable("green", "red")
-    Table.applyMacro("Label = index + 1", "red");
     
     run("3D Distances Closest", "image_a="+title+" image_b="+title+" number=2 distance=DistCenterCenterUnit distance_maximum="+MAX_DIST);
     Table.rename("ClosestDistanceCCUnit", "neighbors");
     
-    labelRed = Table.getColumn("Label", "red");
+    labelRed = Table.getColumn(LABEL_COLUMN, "red");
     xRed = Table.getColumn(X_COLUMN, "red");
     yRed = Table.getColumn(Y_COLUMN, "red");
     zRed = Table.getColumn(Z_COLUMN, "red");
     
-    labelGreen = Table.getColumn("Label", "green");
+    labelGreen = Table.getColumn(LABEL_COLUMN, "green");
     xGreen = Table.getColumn(X_COLUMN, "green");
     yGreen = Table.getColumn(Y_COLUMN, "green");
     zGreen = Table.getColumn(Z_COLUMN, "green");
