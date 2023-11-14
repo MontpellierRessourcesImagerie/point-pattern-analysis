@@ -1,6 +1,6 @@
 {
     "nonBlocking": false, 
-    "helpUrl": "https://github.com/MontpellierRessourcesImagerie/point-pattern-analysis/wiki/3D_Synthetic_Spots", 
+    "helpUrl": "https://github.com/MontpellierRessourcesImagerie/point_pattern_analysis/wiki/point_pattern_analysis", 
     "title": "Sample Random Nuclei Options", 
     "elements": {
         "sdtDev_x_radius": {

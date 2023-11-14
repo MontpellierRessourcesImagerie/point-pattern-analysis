@@ -1,3 +1,8 @@
+var IS_SCALED = false;
+var X_COLUMN = "axis-2";
+var Y_COLUMN = "axis-1";
+var Z_COLUMN = "axis-0";
+
 run("Duplicate...", "duplicate");
 run("Select All");
 setBackgroundColor(0, 0, 0);
@@ -7,15 +12,17 @@ title = Table.title
 title = File.getNameWithoutExtension(title);
 rename(title);
 
-X = Table.getColumn("axis-2");
-Y = Table.getColumn("axis-1");
-Z = Table.getColumn("axis-0");
+X = Table.getColumn(X_COLUMN);
+Y = Table.getColumn(Y_COLUMN);
+Z = Table.getColumn(Z_COLUMN);
 
 for (i = 0; i < Table.size; i++) {
     x = X[i];
     y = Y[i];
     z = Z[i];
-    //toUnscaled(x, y, z);
+    if (IS_SCALED) {
+        toUnscaled(x, y, z);
+    }
     setSlice(z+1);
     setPixel(x, y, i+1);
 }

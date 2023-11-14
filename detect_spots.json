@@ -1,6 +1,6 @@
 {
     "nonBlocking": true, 
-    "helpUrl": "https://github.com/MontpellierRessourcesImagerie/point-pattern-analysis/wiki/3D_Synthetic_Spots", 
+    "helpUrl": "https://github.com/MontpellierRessourcesImagerie/point_pattern_analysis/wiki/point_pattern_analysis", 
     "title": "Detect Spots Options", 
     "elements": {
         "z-diameter": {
@@ -14,6 +14,17 @@
             "key": "z-diameter", 
             "order": 2
         }, 
+        "batch": {
+            "conversions": null, 
+            "helpText": "If checked all files in the selected folder will be processed", 
+            "defaultValue": false, 
+            "label": "Batch ", 
+            "type": "bool", 
+            "sameRow": false, 
+            "value": false, 
+            "key": "batch", 
+            "order": 5
+        }, 
         "threshold": {
             "conversions": null, 
             "helpText": "Threshold to speed up the spot detection", 
@@ -21,7 +32,7 @@
             "label": "Threshold: ", 
             "type": "float", 
             "sameRow": true, 
-            "value": 0.3, 
+            "value": 0.03, 
             "key": "threshold", 
             "order": 4
         }, 
@@ -36,28 +47,6 @@
             "key": "xy-diameter", 
             "order": 1
         }, 
-        "prominence": {
-            "conversions": null, 
-            "helpText": "The prominence of the spot from the background", 
-            "defaultValue": 0.15, 
-            "label": "Prominence: ", 
-            "type": "float", 
-            "sameRow": false, 
-            "value": 0.12, 
-            "key": "prominence", 
-            "order": 3
-        },
-        "batch": {
-            "conversions": null, 
-            "helpText": "If checked all files in the selected folder will be processed", 
-            "defaultValue": false, 
-            "label": "Batch ", 
-            "type": "bool", 
-            "sameRow": false, 
-            "value": false, 
-            "key": "batch", 
-            "order": 5
-        }, 
         "input-folder": {
             "conversions": null, 
             "helpText": "The folder containing the phantom images", 
@@ -65,10 +54,10 @@
             "label": "Input Folder: ", 
             "type": "directory", 
             "sameRow": false, 
-            "value": "/home/baecker/Documents/mri/2023/mifobio/experiments/A01-spot-detection/clustered/", 
+            "value": "None/", 
             "key": "input-folder", 
             "order": 6
-        },
+        }, 
         "output-folder": {
             "conversions": null, 
             "helpText": "The folder into which the results will be written", 
@@ -76,9 +65,20 @@
             "label": "Output Folder: ", 
             "type": "directory", 
             "sameRow": false, 
-            "value": "/home/baecker/Documents/mri/2023/mifobio/experiments/A01-spot-detection/clustered/acquired/", 
+            "value": "None/", 
             "key": "output-folder", 
             "order": 7
+        }, 
+        "prominence": {
+            "conversions": null, 
+            "helpText": "The prominence of the spot from the background", 
+            "defaultValue": 0.15, 
+            "label": "Prominence: ", 
+            "type": "float", 
+            "sameRow": false, 
+            "value": 0.08, 
+            "key": "prominence", 
+            "order": 3
         }
     }
 }

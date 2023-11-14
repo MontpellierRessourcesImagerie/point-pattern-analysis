@@ -41,6 +41,7 @@ import datetime
 import os
 from java.awt import AWTEvent
 from java.awt.event import TextEvent
+from java.awt.event import ActionListener
 from ij import IJ
 from ij import WindowManager
 from ij.plugin.filter import PlugInFilterRunner
@@ -66,7 +67,7 @@ from fr.cnrs.mri.cialib.bfutil import BioformatsUtil
 
 
 
-class SpotDetectionPlugInFilter(ExtendedPlugInFilter, DialogListener):
+class SpotDetectionPlugInFilter(ExtendedPlugInFilter, DialogListener, ActionListener):
 
     
     def __init__(self):
@@ -82,7 +83,13 @@ class SpotDetectionPlugInFilter(ExtendedPlugInFilter, DialogListener):
         self.spotDetector.run(self.image)
         self.image.updateAndDraw()
         
-      
+    
+    def actionPerformed(self, event):
+        self.spotDetector.inputImage = self.image
+        loGImage = self.spotDetector.getNormalizedLoGImage()
+        loGImage.show()
+        
+    
     def dialogItemChanged(self, gd, e):
         if gd.invalidNumber():
             return False
@@ -91,15 +98,22 @@ class SpotDetectionPlugInFilter(ExtendedPlugInFilter, DialogListener):
         if not e.getID() == TextEvent.TEXT_VALUE_CHANGED:
             return True
         textValue = e.getSource().getText()       
+        optionChanged = False
         name = e.getSource().getName()
         if name == "xy-diameter":
             self.spotDetector.spotDiameterXY = float(textValue)
+            optionChanged = True
         if name == "z-diameter":
             self.spotDetector.spotDiameterZ = float(textValue)
+            optionChanged = True
         if name == "prominence":
             self.spotDetector.prominence = float(textValue)   
+            optionChanged = True
         if name == "threshold":
             self.spotDetector.threshold = float(textValue) 
+            optionChanged = True
+        if optionChanged:
+            gd.getPreviewCheckbox().setState(False)
         return True
         
         
@@ -132,24 +146,28 @@ class SpotDetector():
         IJ.run("FeatureJ Options", "isotropic progress log")
         
    
-    def run(self, inputImage):   
-        IJ.log("start detecting spots")
-        self.reportParameters()
-        self.inputImage = inputImage
-        image = inputImage.crop("stack")
+    def getNormalizedLoGImage(self):
+        image = self.inputImage.crop("stack")
         sigmaXY = (self.spotDiameterXY / 2) / math.sqrt(2)
         squaredSigmaXY = sigmaXY * sigmaXY
-        spotRadiusPixelXY = image.getCalibration().getRawX(self.spotDiameterXY / 2.0)
-        spotRadiusPixelZ = image.getCalibration().getRawZ(self.spotDiameterZ / 2.0)
-        doScaling = ImageConverter.getDoScaling()
-        ImageConverter.setDoScaling(False)
         logImage = LoGFilter(sigmaXY).run(image)
         IJ.run(logImage, "Multiply...", "value=" + str(squaredSigmaXY) + " stack")
         stats = StackStatistics(logImage)
         IJ.run(logImage, "Subtract...", "value=" + str(stats.min) + " stack")
         logImage.setDisplayRange(0, stats.max - stats.min)
         StackProcessor(logImage.getStack()).invert()
-        stats = StackStatistics(logImage)
+        return logImage
+    
+    
+    def run(self, inputImage):   
+        IJ.log("start detecting spots")
+        self.reportParameters()
+        self.inputImage = inputImage
+        doScaling = ImageConverter.getDoScaling()
+        ImageConverter.setDoScaling(False)
+        spotRadiusPixelXY = self.inputImage.getCalibration().getRawX(self.spotDiameterXY / 2.0)
+        spotRadiusPixelZ = self.inputImage.getCalibration().getRawZ(self.spotDiameterZ / 2.0)
+        logImage = self.getNormalizedLoGImage()
         thresholded = ImageHandler.wrap(logImage.duplicate())
         thresholded.thresholdCut(self.threshold, False, True)
         maxFinder = MaximaFinder(thresholded, spotRadiusPixelXY, spotRadiusPixelZ, self.prominence)
@@ -234,8 +252,8 @@ class SpotDetector():
         overlay.translate(x, y)
         self.inputImage.setOverlay(overlay)
     
-    
-    
+
+
 class LoGFilter():
     
     

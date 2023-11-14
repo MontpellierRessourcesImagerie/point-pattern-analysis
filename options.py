@@ -43,6 +43,7 @@ class Options(ActionListener):
         self.previewPlugin = None
         self.command = ""
         self.nonBlocking = False
+        self.buttons = []
         
     
     def getTitle(self):
@@ -93,6 +94,10 @@ class Options(ActionListener):
         self.command = command
     
     
+    def addButton(self, label, listener):
+        self.buttons.append((label, listener))
+    
+    
     def showDialog(self):
         self.createDialog()
         self.dialog.showDialog()
@@ -128,6 +133,8 @@ class Options(ActionListener):
             if option.isSameRow():
                 self.dialog.addToSameRow()
             option.addToDialog(self.dialog)
+        for label, listener in self.buttons:
+            self.dialog.addButton(label, listener)
         if self.previewPlugin:            
             runner = PlugInFilterRunner(self.previewPlugin, self.command, str(self))
             self.dialog.addPreviewCheckbox(runner) 

@@ -66,7 +66,7 @@ def getOptions():
 
 def getOptionsPath():
     pluginsPath = IJ.getDirectory("plugins")
-    optionsPath = pluginsPath + "3D_Synthetic_Spots/sample_random_points.json"
+    optionsPath = pluginsPath + "point_pattern_analysis/sample_random_points.json"
     return optionsPath
     
     

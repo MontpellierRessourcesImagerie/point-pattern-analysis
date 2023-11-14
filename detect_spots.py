@@ -31,6 +31,7 @@ def getOptions(plugin):
     optionsOnly = Prefs.get("mri.options.only", "false")
     options.addPreviewPlugin(plugin, "detect spots")
     options.transferTo(plugin, getOptionsMap())
+    options.addButton("LoG Image", plugin)
     options = options.showDialog()
     if not options:
         return None
@@ -41,7 +42,7 @@ def getOptions(plugin):
 
 def getOptionsPath():
     pluginsPath = IJ.getDirectory("plugins")
-    optionsPath = pluginsPath + "3D_Synthetic_Spots/detect_spots.json"
+    optionsPath = pluginsPath + "point_pattern_analysis/detect_spots.json"
     return optionsPath
     
 

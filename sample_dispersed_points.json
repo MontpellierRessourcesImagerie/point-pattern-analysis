@@ -1,6 +1,6 @@
 {
     "nonBlocking": false, 
-    "helpUrl": "https://github.com/MontpellierRessourcesImagerie/point-pattern-analysis/wiki/3D_Synthetic_Spots", 
+    "helpUrl": "https://github.com/MontpellierRessourcesImagerie/point_pattern_analysis/wiki/point_pattern_analysis", 
     "title": "Sample Dispersed Points Options", 
     "elements": {
         "batch": {
@@ -10,7 +10,7 @@
             "label": "Batch ", 
             "type": "bool", 
             "sameRow": false, 
-            "value": true, 
+            "value": false, 
             "key": "batch", 
             "order": 11
         }, 
@@ -52,7 +52,7 @@
             "label": "Number Of Samples: ", 
             "type": "int", 
             "sameRow": false, 
-            "value": 1000, 
+            "value": 125, 
             "key": "number", 
             "order": 8
         }, 
@@ -74,7 +74,7 @@
             "label": "Depth Of Image: ", 
             "type": "int", 
             "sameRow": true, 
-            "value": 64, 
+            "value": 32, 
             "key": "depth", 
             "order": 3
         }, 
@@ -96,7 +96,7 @@
             "label": "Width Of Image: ", 
             "type": "int", 
             "sameRow": false, 
-            "value": 1030, 
+            "value": 512, 
             "key": "width", 
             "order": 1
         }, 
@@ -129,7 +129,7 @@
             "label": "Max.-Dist. from grid: ", 
             "type": "float", 
             "sameRow": false, 
-            "value": 10.0, 
+            "value": 5.0, 
             "key": "max.-dist.", 
             "order": 9
         }, 
@@ -140,7 +140,7 @@
             "label": "Height Of Image: ", 
             "type": "int", 
             "sameRow": true, 
-            "value": 1030, 
+            "value": 512, 
             "key": "height", 
             "order": 2
         }, 
